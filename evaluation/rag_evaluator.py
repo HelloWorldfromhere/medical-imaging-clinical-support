@@ -203,7 +203,7 @@ class RAGEvaluator:
             })
 
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2)
         logger.info(f"Results saved to {path}")
 
@@ -282,7 +282,7 @@ class RAGEvaluator:
 
         md_text = "\n".join(lines)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(md_text)
         logger.info(f"Markdown results saved to {path}")
         return md_text
