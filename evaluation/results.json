@@ -1,0 +1,1352 @@
+[
+  {
+    "model": "minilm",
+    "strategy": "fixed_512",
+    "mean_precision_at_5": 0.29,
+    "mean_keyword_coverage": 0.2,
+    "mean_latency_ms": 14.54,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 23.7
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 14.51
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 14.49
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 14.51
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.96
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 13.76
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 14.32
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.41
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.6,
+        "latency_ms": 13.57
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.85
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.28
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.6,
+        "latency_ms": 13.49
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 16.15
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.6,
+        "latency_ms": 14.53
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 14.42
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 14.32
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.93
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 13.35
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 13.44
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.82
+      }
+    ]
+  },
+  {
+    "model": "biolord",
+    "strategy": "fixed_512",
+    "mean_precision_at_5": 0.28,
+    "mean_keyword_coverage": 0.1725,
+    "mean_latency_ms": 10.45,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 17.88
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.17
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.51
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.1
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 14.15
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.59
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.4,
+        "latency_ms": 9.76
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.67
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.6,
+        "latency_ms": 9.46
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.81
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.41
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.46
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.27
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.6,
+        "latency_ms": 9.92
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.3
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.4
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.21
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.27
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.35
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.3
+      }
+    ]
+  },
+  {
+    "model": "pubmedbert_st",
+    "strategy": "fixed_512",
+    "mean_precision_at_5": 0.27,
+    "mean_keyword_coverage": 0.1825,
+    "mean_latency_ms": 11.11,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 13.38
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.14
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.43
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.34
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.26
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 15.5
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.26
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.07
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.8,
+        "latency_ms": 11.65
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.57
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.71
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 12.02
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.44
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.6,
+        "latency_ms": 11.96
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.27
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.0
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.36
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.89
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.4
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.46
+      }
+    ]
+  },
+  {
+    "model": "minilm",
+    "strategy": "recursive_paragraph",
+    "mean_precision_at_5": 0.24,
+    "mean_keyword_coverage": 0.14,
+    "mean_latency_ms": 11.59,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 13.62
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 12.46
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.73
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.27
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.2,
+        "latency_ms": 12.09
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 12.23
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.36
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 12.04
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.83
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.32
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 12.69
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.04
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 10.58
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.07
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.0
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.53
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.51
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 12.24
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.44
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.72
+      }
+    ]
+  },
+  {
+    "model": "biolord",
+    "strategy": "recursive_paragraph",
+    "mean_precision_at_5": 0.28,
+    "mean_keyword_coverage": 0.1525,
+    "mean_latency_ms": 12.15,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 11.99
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.68
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 14.24
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.76
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.82
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 13.64
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 14.41
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 15.18
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.4,
+        "latency_ms": 10.61
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.25
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.78
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 10.34
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 10.18
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.6,
+        "latency_ms": 12.59
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 11.44
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 11.59
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 13.92
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 14.49
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 12.38
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 11.74
+      }
+    ]
+  },
+  {
+    "model": "pubmedbert_st",
+    "strategy": "recursive_paragraph",
+    "mean_precision_at_5": 0.25,
+    "mean_keyword_coverage": 0.1925,
+    "mean_latency_ms": 56.84,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.25,
+        "latency_ms": 59.11
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 58.19
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 57.83
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 55.87
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 55.71
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 57.53
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 56.57
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 57.85
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.6,
+        "latency_ms": 56.77
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 55.36
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 55.93
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 56.94
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 56.37
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.6,
+        "latency_ms": 55.88
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 56.74
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 55.68
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 57.06
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 57.84
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 57.38
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 56.23
+      }
+    ]
+  },
+  {
+    "model": "minilm",
+    "strategy": "sentence_based",
+    "mean_precision_at_5": 0.23,
+    "mean_keyword_coverage": 0.1525,
+    "mean_latency_ms": 9.5,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 10.92
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.57
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.55
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 8.91
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 1.0,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.19
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.29
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.27
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.52
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.8
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.22
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.16
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.6,
+        "latency_ms": 9.48
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 9.87
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 8.99
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.2
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.19
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.72
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.81
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 9.44
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 9.99
+      }
+    ]
+  },
+  {
+    "model": "biolord",
+    "strategy": "sentence_based",
+    "mean_precision_at_5": 0.2,
+    "mean_keyword_coverage": 0.1425,
+    "mean_latency_ms": 77.01,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 213.29
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 72.82
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 73.89
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 71.21
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 66.84
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 78.87
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.4,
+        "latency_ms": 67.02
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 79.62
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.6,
+        "latency_ms": 67.05
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 67.21
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 66.59
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 66.94
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 65.98
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.6,
+        "latency_ms": 67.3
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 65.02
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 66.4
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 78.26
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 66.27
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 75.35
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.6,
+        "keyword_coverage": 0.2,
+        "latency_ms": 64.27
+      }
+    ]
+  },
+  {
+    "model": "pubmedbert_st",
+    "strategy": "sentence_based",
+    "mean_precision_at_5": 0.16,
+    "mean_keyword_coverage": 0.1125,
+    "mean_latency_ms": 72.71,
+    "num_cases": 20,
+    "per_case": [
+      {
+        "id": 1,
+        "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of C",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.25,
+        "latency_ms": 145.95
+      },
+      {
+        "id": 2,
+        "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recen",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 122.96
+      },
+      {
+        "id": 3,
+        "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.8
+      },
+      {
+        "id": 4,
+        "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 68.94
+      },
+      {
+        "id": 5,
+        "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma hi",
+        "precision_at_5": 0.8,
+        "keyword_coverage": 0.2,
+        "latency_ms": 65.53
+      },
+      {
+        "id": 6,
+        "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 70.41
+      },
+      {
+        "id": 7,
+        "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 69.67
+      },
+      {
+        "id": 8,
+        "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms d",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.45
+      },
+      {
+        "id": 9,
+        "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptom",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.4,
+        "latency_ms": 63.03
+      },
+      {
+        "id": 10,
+        "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.62
+      },
+      {
+        "id": 11,
+        "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilateral",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 69.5
+      },
+      {
+        "id": 12,
+        "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at ",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.32
+      },
+      {
+        "id": 13,
+        "query": "58-year-old male with unilateral left pleural effusion and rib fractures after m",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 65.14
+      },
+      {
+        "id": 14,
+        "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pa",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.54
+      },
+      {
+        "id": 15,
+        "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 64.07
+      },
+      {
+        "id": 16,
+        "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 64.78
+      },
+      {
+        "id": 17,
+        "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic ",
+        "precision_at_5": 0.4,
+        "keyword_coverage": 0.2,
+        "latency_ms": 64.65
+      },
+      {
+        "id": 18,
+        "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectas",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 65.38
+      },
+      {
+        "id": 19,
+        "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and wei",
+        "precision_at_5": 0.2,
+        "keyword_coverage": 0.2,
+        "latency_ms": 67.12
+      },
+      {
+        "id": 20,
+        "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acut",
+        "precision_at_5": 0.0,
+        "keyword_coverage": 0.0,
+        "latency_ms": 64.35
+      }
+    ]
+  }
+]

@@ -24,7 +24,7 @@ from typing import Optional
 import psycopg2
 from psycopg2.extras import execute_values
 from sentence_transformers import SentenceTransformer
-from langchain.text_splitter import (
+from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     CharacterTextSplitter,
 )
@@ -39,17 +39,17 @@ logger = logging.getLogger(__name__)
 EMBEDDING_MODELS = {
     "minilm": {
         "name": "all-MiniLM-L6-v2",
-        "description": "General-purpose, fast, 80 MB",
+        "description": "General-purpose sentence transformer, 80 MB",
         "dimension": 384,
     },
-    "biobert": {
-        "name": "dmis-lab/biobert-base-cased-v1.2",
-        "description": "Biomedical domain, 420 MB",
+    "biolord": {
+        "name": "FremyCompany/BioLORD-2023-M",
+        "description": "Biomedical sentence transformer, 420 MB",
         "dimension": 768,
     },
-    "pubmedbert": {
-        "name": "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract",
-        "description": "PubMed-trained, 420 MB",
+    "pubmedbert_st": {
+        "name": "pritamdeka/S-PubMedBert-MS-MARCO",
+        "description": "PubMedBERT fine-tuned for semantic search, 420 MB",
         "dimension": 768,
     },
 }
@@ -136,7 +136,7 @@ class EmbeddingPipeline:
         json_path = self.docs_path / "documents.json"
 
         if json_path.exists():
-            with open(json_path) as f:
+            with open(json_path, encoding="utf-8") as f:
                 self.documents = json.load(f)
             logger.info(f"Loaded {len(self.documents)} documents from {json_path}")
         else:
@@ -324,7 +324,7 @@ class EmbeddingPipeline:
             })
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(rows, f, indent=2)
 
         logger.info(f"Comparison table saved to {output_path}")
