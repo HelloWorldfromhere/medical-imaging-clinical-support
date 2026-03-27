@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD and current smoker",
+    "cnn_prediction": "pneumonia",
+    "expected_topics": ["community-acquired pneumonia", "antibiotic selection", "COPD exacerbation", "hospitalization criteria"],
+    "expected_keywords": ["consolidation", "empiric antibiotics", "COPD", "sputum culture"],
+    "difficulty": "standard",
+    "clinical_context": "emergency department presentation"
+  },
+  {
+    "id": 2,
+    "query": "45-year-old female with diffuse bilateral infiltrates, fever, and hypoxia, recently hospitalized",
+    "cnn_prediction": "pneumonia",
+    "expected_topics": ["hospital-acquired pneumonia", "MRSA coverage", "ventilator-associated pneumonia risk", "broad-spectrum antibiotics"],
+    "expected_keywords": ["nosocomial", "vancomycin", "piperacillin-tazobactam", "respiratory culture"],
+    "difficulty": "complex",
+    "clinical_context": "ICU transfer"
+  },
+  {
+    "id": 3,
+    "query": "70-year-old male with large right-sided pleural effusion and mediastinal shift",
+    "cnn_prediction": "effusion",
+    "expected_topics": ["thoracentesis indication", "malignant vs transudative effusion", "Light criteria", "underlying etiology"],
+    "expected_keywords": ["pleural fluid analysis", "thoracentesis", "Light criteria", "protein", "LDH"],
+    "difficulty": "standard",
+    "clinical_context": "outpatient referral"
+  },
+  {
+    "id": 4,
+    "query": "55-year-old female with widened mediastinum and enlarged cardiac silhouette",
+    "cnn_prediction": "cardiomegaly",
+    "expected_topics": ["heart failure workup", "echocardiogram indication", "BNP levels", "diuretic therapy"],
+    "expected_keywords": ["ejection fraction", "echocardiography", "BNP", "diuretics", "fluid overload"],
+    "difficulty": "standard",
+    "clinical_context": "cardiology consult"
+  },
+  {
+    "id": 5,
+    "query": "30-year-old male with spontaneous left pneumothorax on chest X-ray, no trauma history",
+    "cnn_prediction": "pneumothorax",
+    "expected_topics": ["primary spontaneous pneumothorax", "chest tube vs observation", "size estimation", "recurrence risk"],
+    "expected_keywords": ["pneumothorax", "chest tube", "observation", "tall thin male", "recurrence"],
+    "difficulty": "standard",
+    "clinical_context": "emergency department"
+  },
+  {
+    "id": 6,
+    "query": "60-year-old female with right upper lobe mass and hilar lymphadenopathy, 40 pack-year smoking history",
+    "cnn_prediction": "mass",
+    "expected_topics": ["lung cancer staging", "CT follow-up", "biopsy indication", "PET scan recommendation"],
+    "expected_keywords": ["non-small cell", "staging", "biopsy", "PET-CT", "mediastinal lymph nodes"],
+    "difficulty": "complex",
+    "clinical_context": "oncology referral"
+  },
+  {
+    "id": 7,
+    "query": "80-year-old female with bilateral interstitial opacities and progressive dyspnea over 6 months",
+    "cnn_prediction": "fibrosis",
+    "expected_topics": ["interstitial lung disease", "pulmonary fibrosis differential", "HRCT indication", "pulmonary function tests"],
+    "expected_keywords": ["interstitial", "fibrosis", "HRCT", "restrictive pattern", "IPF"],
+    "difficulty": "complex",
+    "clinical_context": "pulmonology referral"
+  },
+  {
+    "id": 8,
+    "query": "25-year-old asthmatic female with hyperinflated lungs and flattened diaphragms during acute exacerbation",
+    "cnn_prediction": "normal",
+    "expected_topics": ["asthma exacerbation management", "bronchodilator therapy", "steroid indication", "admission criteria"],
+    "expected_keywords": ["hyperinflation", "bronchodilator", "corticosteroids", "peak flow", "oxygen saturation"],
+    "difficulty": "standard",
+    "clinical_context": "emergency department"
+  },
+  {
+    "id": 9,
+    "query": "50-year-old male with bilateral hilar lymphadenopathy and no respiratory symptoms",
+    "cnn_prediction": "normal",
+    "expected_topics": ["sarcoidosis differential", "lymphoma workup", "CT chest recommendation", "biopsy consideration"],
+    "expected_keywords": ["sarcoidosis", "lymphoma", "bilateral hilar", "ACE level", "biopsy"],
+    "difficulty": "complex",
+    "clinical_context": "incidental finding on routine X-ray"
+  },
+  {
+    "id": 10,
+    "query": "72-year-old male with right lower lobe atelectasis post-abdominal surgery",
+    "cnn_prediction": "atelectasis",
+    "expected_topics": ["post-operative atelectasis", "incentive spirometry", "early mobilization", "bronchoscopy if persistent"],
+    "expected_keywords": ["atelectasis", "incentive spirometry", "post-operative", "mucus plug", "mobilization"],
+    "difficulty": "standard",
+    "clinical_context": "post-surgical ward"
+  },
+  {
+    "id": 11,
+    "query": "40-year-old immunocompromised male with diffuse ground-glass opacities bilaterally",
+    "cnn_prediction": "pneumonia",
+    "expected_topics": ["PCP pneumonia", "opportunistic infections", "CD4 count correlation", "trimethoprim-sulfamethoxazole"],
+    "expected_keywords": ["Pneumocystis", "immunocompromised", "ground-glass", "TMP-SMX", "CD4"],
+    "difficulty": "complex",
+    "clinical_context": "HIV positive patient"
+  },
+  {
+    "id": 12,
+    "query": "Neonate with bilateral diffuse granular opacities and air bronchograms, born at 28 weeks",
+    "cnn_prediction": "pneumonia",
+    "expected_topics": ["respiratory distress syndrome", "surfactant therapy", "NICU management", "prematurity complications"],
+    "expected_keywords": ["surfactant", "RDS", "premature", "CPAP", "intubation"],
+    "difficulty": "complex",
+    "clinical_context": "NICU"
+  },
+  {
+    "id": 13,
+    "query": "58-year-old male with unilateral left pleural effusion and rib fractures after motor vehicle accident",
+    "cnn_prediction": "effusion",
+    "expected_topics": ["traumatic hemothorax", "chest tube placement", "CT assessment", "surgical consult criteria"],
+    "expected_keywords": ["hemothorax", "trauma", "chest tube", "rib fractures", "CT thorax"],
+    "difficulty": "standard",
+    "clinical_context": "trauma bay"
+  },
+  {
+    "id": 14,
+    "query": "35-year-old female with recurrent small bilateral pleural effusions and joint pain",
+    "cnn_prediction": "effusion",
+    "expected_topics": ["lupus pleuritis", "autoimmune workup", "ANA testing", "rheumatology referral"],
+    "expected_keywords": ["SLE", "lupus", "autoimmune", "ANA", "complement levels"],
+    "difficulty": "complex",
+    "clinical_context": "rheumatology consult"
+  },
+  {
+    "id": 15,
+    "query": "68-year-old male with right middle lobe consolidation not responding to 2 weeks of antibiotics",
+    "cnn_prediction": "pneumonia",
+    "expected_topics": ["non-resolving pneumonia", "post-obstructive pneumonia", "bronchoscopy indication", "malignancy workup"],
+    "expected_keywords": ["non-resolving", "bronchoscopy", "endobronchial lesion", "CT chest", "malignancy"],
+    "difficulty": "complex",
+    "clinical_context": "follow-up after failed treatment"
+  },
+  {
+    "id": 16,
+    "query": "22-year-old female with normal chest X-ray but persistent cough and wheezing for 3 months",
+    "cnn_prediction": "normal",
+    "expected_topics": ["normal X-ray differential", "asthma diagnosis", "spirometry indication", "GERD as cause"],
+    "expected_keywords": ["spirometry", "methacholine challenge", "asthma", "GERD", "post-nasal drip"],
+    "difficulty": "standard",
+    "clinical_context": "primary care"
+  },
+  {
+    "id": 17,
+    "query": "75-year-old male with tension pneumothorax, tracheal deviation, and hemodynamic instability",
+    "cnn_prediction": "pneumothorax",
+    "expected_topics": ["tension pneumothorax emergency", "needle decompression", "chest tube insertion", "hemodynamic management"],
+    "expected_keywords": ["tension", "needle decompression", "tracheal deviation", "emergency", "chest tube"],
+    "difficulty": "complex",
+    "clinical_context": "emergency resuscitation"
+  },
+  {
+    "id": 18,
+    "query": "48-year-old obese female with elevated right hemidiaphragm and basilar atelectasis",
+    "cnn_prediction": "atelectasis",
+    "expected_topics": ["obesity-related atelectasis", "diaphragm dysfunction", "positional management", "weight management"],
+    "expected_keywords": ["elevated hemidiaphragm", "obesity", "atelectasis", "upright positioning", "CPAP"],
+    "difficulty": "standard",
+    "clinical_context": "outpatient pulmonology"
+  },
+  {
+    "id": 19,
+    "query": "62-year-old male with cavitary lesion in right upper lobe, night sweats, and weight loss",
+    "cnn_prediction": "mass",
+    "expected_topics": ["tuberculosis differential", "lung abscess", "AFB smear and culture", "isolation precautions"],
+    "expected_keywords": ["cavitary", "tuberculosis", "AFB", "isolation", "sputum culture"],
+    "difficulty": "complex",
+    "clinical_context": "infectious disease consult"
+  },
+  {
+    "id": 20,
+    "query": "55-year-old female with bilateral pulmonary edema pattern and cardiomegaly, acute onset",
+    "cnn_prediction": "cardiomegaly",
+    "expected_topics": ["acute decompensated heart failure", "IV diuretics", "noninvasive ventilation", "troponin to rule out MI"],
+    "expected_keywords": ["pulmonary edema", "furosemide", "BiPAP", "troponin", "echocardiogram"],
+    "difficulty": "standard",
+    "clinical_context": "emergency department"
+  }
+]
