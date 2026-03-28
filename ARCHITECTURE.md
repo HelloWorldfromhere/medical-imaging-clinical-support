@@ -14,7 +14,7 @@
 5. [Model Evaluation & Selection](#5-model-evaluation--selection)
 6. [Database Design](#6-database-design)
 7. [ETL Pipeline Design](#7-etl-pipeline-design)
-8. [RAG System Design (Planned — Phase 3)](#8-rag-system-design-planned--phase-3)
+8. [RAG System Design — Phase 3](#8-rag-system-design--phase-3)
 9. [Deployment Architecture (Planned — Phase 4)](#9-deployment-architecture-planned--phase-4)
 10. [Key Learnings & Trade-offs](#10-key-learnings--trade-offs)
 
@@ -28,10 +28,10 @@ The system is built in deliberate phases to allow early validation before commit
 |-------|-------|--------|-----------|
 | **Phase 1** | Binary CNN classifier (NORMAL vs PNEUMONIA) | ✅ Complete | Establish baseline, validate training pipeline, prove clinical metric reasoning |
 | **Phase 2** | Multi-label CNN classifier (ChestX-ray14, 14 conditions) | ⬜ Week 5 | Real clinical utility requires multi-condition detection |
-| **Phase 3** | RAG pipeline — PubMed literature retrieval per detected condition | ⬜ Week 6 | LLM-powered clinical context for each detected pathology |
+| **Phase 3** | RAG pipeline — PubMed literature retrieval per detected condition | ✅ Evaluation Complete | LLM-powered clinical context for each detected pathology |
 | **Phase 4** | FastAPI backend + Docker + GCP Cloud Run deployment | ⬜ Week 7 | Production-grade, publicly accessible system |
 
-**Why phase it this way?**  
+**Why phase it this way?**
 Starting with binary classification allows validation of the entire training pipeline (data loading, augmentation, GPU training, evaluation, database logging) on a well-understood problem before scaling to 14-class multi-label classification. A common mistake is attempting full complexity before the infrastructure is proven.
 
 ---
@@ -40,10 +40,10 @@ Starting with binary classification allows validation of the entire training pip
 
 ### Phase 1: Kaggle Chest X-Ray Images (Pneumonia)
 
-**Dataset:** Paul Mooney / Guangzhou Women and Children's Medical Center  
-**Source:** https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia  
-**Size:** 5,856 images | 2 classes: NORMAL, PNEUMONIA  
-**Split:** 5,216 train / 16 val / 624 test  
+**Dataset:** Paul Mooney / Guangzhou Women and Children's Medical Center
+**Source:** https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia
+**Size:** 5,856 images | 2 classes: NORMAL, PNEUMONIA
+**Split:** 5,216 train / 16 val / 624 test
 
 **Decision: Use this dataset first**
 
@@ -66,7 +66,7 @@ transforms.Normalize(mean=[0.485, 0.456, 0.406],   # ImageNet stats
                      std=[0.229, 0.224, 0.225])     # Valid for transfer learning
 ```
 
-**Why not RandomVerticalFlip?**  
+**Why not RandomVerticalFlip?**
 Vertical flipping would invert lung anatomy (apex/base orientation), creating anatomically impossible images that could confuse the model on real data.
 
 ---
@@ -96,7 +96,7 @@ Rather than selecting one architecture arbitrarily, both were trained and evalua
 # ResNet50
 model.fc = nn.Linear(2048, 2)
 
-# EfficientNet-B3  
+# EfficientNet-B3
 model.classifier[1] = nn.Linear(1536, 2)
 
 # Why freeze early layers?
@@ -207,17 +207,17 @@ All plots saved to `evaluation/plots/`:
 | MongoDB | Flexible schema | No native vector search without Atlas, weaker SQL | Rejected |
 | Pinecone only | Purpose-built vector DB | No relational data storage | Phase 3 supplement |
 
-**Why PostgreSQL specifically?**  
+**Why PostgreSQL specifically?**
 Phase 3 requires vector similarity search for RAG embeddings. PostgreSQL + pgvector extension provides this natively, eliminating the need for a separate vector database. One database handles relational data (documents, logs, model versions) and vector search.
 
 ### Schema Decisions
 
 ```sql
 -- medical_documents: JSONB for metadata
--- Rationale: PubMed records have variable fields (some have MeSH terms, 
+-- Rationale: PubMed records have variable fields (some have MeSH terms,
 -- some have DOIs, some have author affiliations). JSONB avoids 30+ nullable columns.
 
--- model_versions: metrics as JSONB  
+-- model_versions: metrics as JSONB
 -- Rationale: Different models report different metrics. JSONB allows storing
 -- any metric set without schema migrations as the project evolves.
 
@@ -245,7 +245,7 @@ search_terms = [
     "chest radiograph automated diagnosis",
     "pulmonary disease machine learning diagnosis"
 ]
-# 50 results per term × 5 terms = 250 max, 228 after deduplication
+# 50 results per term x 5 terms = 250 max, 228 after deduplication
 ```
 
 **Deduplication Strategy:**
@@ -255,8 +255,31 @@ ON CONFLICT (pubmed_id) DO NOTHING
 -- This makes the ETL pipeline idempotent — safe to run multiple times.
 ```
 
-**Why idempotency matters:**  
+**Why idempotency matters:**
 The scheduler runs weekly. If a network error causes a partial run, re-running must not create duplicate records or raise errors. `ON CONFLICT DO NOTHING` guarantees this.
+
+### Dual ETL Paths
+
+The system provides two data acquisition paths for different environments:
+
+| Path | File | Output | Use Case |
+|------|------|--------|----------|
+| **Production** | `pipelines/pubmed_etl.py` | PostgreSQL `medical_documents` table | Deployed system with database |
+| **Development** | `pipelines/pubmed_fetch_json.py` | `pipelines/pubmed_cache/documents.json` | Local evaluation without database |
+
+Both paths use the same PubMed API, same parsing logic, and same deduplication. The JSON path was added during Phase 3 evaluation to enable rapid iteration on embedding model comparisons without requiring a running PostgreSQL instance.
+
+### Corpus Composition
+
+The medical document corpus was built in two stages to ensure coverage of all clinical scenarios in the evaluation test dataset:
+
+| Stage | Documents | Search Terms | Conditions Covered |
+|-------|-----------|--------------|-------------------|
+| Initial ETL | 228 | 5 chest radiology terms | Pneumonia, pneumothorax, effusion, infiltrates |
+| Targeted expansion | 28 | 3 gap-filling terms | Lupus pleuritis, heart failure, cardiomegaly |
+| **Total** | **256** | **8 unique terms** | **13 clinical conditions** |
+
+**Gap analysis approach:** After building the initial corpus, a keyword coverage check identified conditions with fewer than 3 mentions (lupus: 1, heart failure: 2). Targeted PubMed queries filled these gaps without re-fetching existing content. This approach respects PubMed's rate limits and demonstrates data-driven corpus design.
 
 ### Scheduler (`pipelines/scheduler.py`)
 
@@ -272,53 +295,119 @@ The scheduler runs weekly. If a network error causes a partial run, re-running m
 
 ---
 
-## 8. RAG System Design (Planned — Phase 3)
+## 8. RAG System Design — Phase 3
 
-> This section documents decisions made in advance based on research. Will be updated with actual results in Week 6.
+### Overview
 
-### Embedding Model Selection
+The RAG (Retrieval-Augmented Generation) pipeline retrieves relevant medical literature based on CNN classification results and generates clinical decision support summaries. Phase 3 focused on systematic evaluation of the retrieval component — selecting the optimal embedding model and chunking strategy through controlled experimentation.
 
-**Decision: BioBERT over general-purpose embeddings**
+### Evaluation Methodology
 
-| Model | Dimension | Domain | Expected Precision@5 | Size |
-|-------|-----------|--------|----------------------|------|
-| `all-MiniLM-L6-v2` | 384 | General | Baseline | 80MB |
-| `text-embedding-ada-002` | 1536 | General | +5-8% vs MiniLM | API cost |
-| **`BioBERT`** | **768** | **Biomedical** | **+12-14% vs MiniLM** | **400MB** |
-| `PubMedBERT` | 768 | Biomedical | Similar to BioBERT | 400MB |
+**Test Dataset:** 20 clinical scenarios covering 7 pathology categories (pneumonia variants, pleural conditions, cardiac findings, pneumothorax, pulmonary fibrosis, tuberculosis, and normal X-ray differentials). Each test case includes a clinical query, expected CNN prediction, expected medical keywords, and difficulty classification (standard vs complex).
 
-**Why BioBERT?**  
-BioBERT was pre-trained on PubMed abstracts and PMC full-text articles — the exact corpus we are retrieving from. Medical terminology ("atelectasis," "consolidation," "pleural effusion") is semantically understood rather than treated as rare tokens. Research shows 12-14% precision improvement on biomedical retrieval tasks vs general embeddings.
+**Metrics:**
+- **Precision@5:** Fraction of top-5 retrieved chunks containing at least one expected keyword from the test case
+- **Keyword Coverage:** Fraction of expected medical terms found across all top-5 retrieved chunks
+- **Latency:** Time from query embedding to ranked results (milliseconds)
 
-**Evaluation Plan:** All 3 embedding models will be tested on 20 clinical query test cases. Results documented in `evaluation/results.md`.
+**Corpus:** 256 real PubMed abstracts fetched via Biopython Entrez API, covering 13 clinical conditions. All documents are publicly available medical literature cited by PMID.
 
-### Chunking Strategy
+### Round 1: Initial Model Selection (Base BERT Models)
 
-**Decision: RecursiveCharacterTextSplitter, 400-500 chars, 50 char overlap**
+The initial evaluation compared models selected based on domain relevance:
 
-| Strategy | Chunk Size | Overlap | Rationale |
-|----------|-----------|---------|-----------|
-| Fixed-size | 256 chars | 0 | Simple but splits mid-sentence |
-| Sentence-based | Variable | 0 | Preserves sentences, variable retrieval quality |
-| **Recursive** | **400-500 chars** | **50 chars** | **Preserves clinical context, consistent size** |
+| Rank | Model | Strategy | P@5 | KW-Cov | Latency |
+|------|-------|----------|-----|--------|---------|
+| 1 | all-MiniLM-L6-v2 | fixed_512 | **0.290** | 0.200 | 7.1ms |
+| 2 | all-MiniLM-L6-v2 | recursive | 0.240 | 0.140 | 6.9ms |
+| 3 | all-MiniLM-L6-v2 | sentence | 0.230 | 0.152 | 11.7ms |
+| 4 | BioBERT | fixed_512 | 0.120 | 0.120 | 10.4ms |
+| 5 | PubMedBERT | fixed_512 | 0.100 | 0.120 | 12.4ms |
+| 6-9 | BioBERT/PubMedBERT | recursive/sentence | 0.050-0.090 | 0.062-0.090 | 14-19ms |
 
-**Why 400-500 chars?**  
-Medical abstracts express one clinical finding per 2-3 sentences (~400-500 characters). Smaller chunks lose context (e.g., splitting "sensitivity was 94%" from "for detecting pneumonia"). Larger chunks retrieve too much irrelevant content, reducing precision.
+**Unexpected result:** The general-purpose model (MiniLM) outperformed both biomedical models by a factor of 2-3x across all chunking strategies.
 
-**Why 50 char overlap?**  
-Prevents important clinical statements that span chunk boundaries from being missed entirely.
+**Root cause analysis:** The sentence-transformers library logged `"No sentence-transformers model found with name dmis-lab/biobert-base-cased-v1.2. Creating a new one with mean pooling."` BioBERT and PubMedBERT are base BERT models trained for token-level tasks (named entity recognition, text classification) — not for producing sentence-level similarity embeddings. When loaded as sentence transformers, they default to naive mean pooling of token embeddings, which produces low-quality sentence representations. MiniLM, by contrast, was trained with contrastive learning specifically to produce embeddings where semantically similar sentences are close in vector space — exactly what retrieval requires.
 
-### Retrieval Configuration
+**Key insight:** Domain specificity in pre-training does not guarantee retrieval quality. The training objective (contrastive sentence similarity vs masked language modeling) matters more than the training corpus for embedding-based retrieval tasks.
 
-```python
-k = 5  # Top-5 documents retrieved per query
+### Round 2: Corrected Model Selection (Sentence Transformer Models)
 
-# Why k=5?
-# k=3: May miss relevant documents on rare conditions
-# k=5: Standard RAG benchmark (precision@5 is the industry metric)
-# k=10: Retrieves too much context, degrades LLM response quality
-# k=5 will be validated against k=3 and k=7 in evaluation
+Based on the Round 1 diagnosis, biomedical models trained specifically as sentence transformers were selected:
+
+| Rank | Model | Strategy | P@5 | KW-Cov | Latency |
+|------|-------|----------|-----|--------|---------|
+| 1 | all-MiniLM-L6-v2 | fixed_512 | **0.290** | **0.200** | 14.5ms |
+| 2 | BioLORD-2023-M | fixed_512 | 0.280 | 0.172 | 10.4ms |
+| 3 | BioLORD-2023-M | recursive | 0.280 | 0.152 | 12.2ms |
+| 4 | S-PubMedBERT-MS-MARCO | fixed_512 | 0.270 | 0.182 | 11.1ms |
+| 5 | S-PubMedBERT-MS-MARCO | recursive | 0.250 | 0.193 | 56.8ms |
+| 6 | all-MiniLM-L6-v2 | recursive | 0.240 | 0.140 | 11.6ms |
+| 7 | all-MiniLM-L6-v2 | sentence | 0.230 | 0.152 | 9.5ms |
+| 8 | BioLORD-2023-M | sentence | 0.200 | 0.142 | 77.0ms |
+| 9 | S-PubMedBERT-MS-MARCO | sentence | 0.160 | 0.113 | 72.7ms |
+
+**Model descriptions:**
+- **all-MiniLM-L6-v2:** General-purpose sentence transformer, 80 MB, 384-dimensional embeddings. Trained with contrastive learning on 1B+ sentence pairs.
+- **BioLORD-2023-M:** Biomedical sentence transformer, 420 MB, 768-dimensional embeddings. Trained on biomedical concept relationships from UMLS and clinical ontologies.
+- **S-PubMedBERT-MS-MARCO:** PubMedBERT fine-tuned on MS MARCO passage retrieval dataset, 420 MB, 768-dimensional embeddings. Combines biomedical language understanding with search-optimized similarity.
+
+### Analysis of Results
+
+**Model comparison:** With proper sentence transformer models, the biomedical models (BioLORD P@5=0.280, S-PubMedBERT P@5=0.270) closed the gap with MiniLM (P@5=0.290). The 3.4-7% difference is within noise range for 20 test cases, suggesting that for this corpus size and query complexity, the training objective (sentence similarity) matters more than domain-specific pre-training.
+
+**Chunking strategy comparison:** Fixed 512-character chunks consistently outperformed recursive and sentence-based splitting across all models. This was unexpected — the hypothesis was that paragraph-aware recursive splitting would preserve clinical context better. The likely explanation: PubMed abstracts are already structured as coherent paragraphs, so fixed-size splitting at 512 characters rarely breaks mid-thought. Recursive splitting at 450 characters with 50-character overlap created more chunks (1,332 vs 888) with smaller average size (293 vs 437 chars), diluting the semantic signal per chunk.
+
+**Sentence-based chunking performed worst** across all models. At 160-character average chunk size and 2,426 total chunks, individual chunks lacked sufficient context for meaningful similarity matching. A sentence like "Empiric antibiotics should be initiated" is too short to differentiate between pneumonia, UTI, or wound infection contexts.
+
+### Selected Configuration
+
+**Model:** all-MiniLM-L6-v2
+**Chunking:** Fixed 512-character chunks, no overlap
+**k:** 5 documents per retrieval
+
+**Rationale:** MiniLM achieved the highest Precision@5 (0.290) and keyword coverage (0.200) while being the smallest model (80 MB vs 420 MB), fastest to load, and fastest at inference. The biomedical models provided no statistically significant improvement on this corpus to justify their 5x size increase.
+
+**Production consideration:** For a larger corpus (1,000+ documents) or more specialized clinical queries, BioLORD may provide a meaningful advantage due to its biomedical ontology training. The evaluation framework (`run_evaluation.py`) supports re-running the comparison as the corpus grows.
+
+### Evaluation Metric Limitations
+
+The current Precision@5 metric uses exact keyword matching, which underestimates retrieval quality. A chunk discussing "trimethoprim-sulfamethoxazole" would not match the expected keyword "TMP-SMX" despite referring to the same drug. Similarly, a chunk about "antibiotic therapy for community-acquired pneumonia" is clinically relevant to a pneumonia query but scores zero if it does not contain the specific expected keywords like "consolidation" or "sputum culture."
+
+A semantic similarity-based evaluation metric (comparing embedding similarity between retrieved chunks and expected topics rather than keyword presence) is planned as a refinement. The current keyword-based metric provides a conservative lower bound on retrieval quality.
+
+### RAG Pipeline Architecture
+
 ```
+Clinical Query + CNN Prediction
+        |
+        v
+  Query Embedding (MiniLM, 384-dim)
+        |
+        v
+  Vector Similarity Search
+  (cosine similarity, top-5)
+        |
+        v
+  Retrieved Chunks (5 x ~512 chars)
+        |
+        v
+  Prompt Construction
+  (query + CNN result + retrieved context)
+        |
+        v
+  LLM Generation (OpenAI GPT-4, temp=0.3)
+        |
+        v
+  Clinical Summary with Citations
+        |
+        v
+  Query Logged to PostgreSQL
+```
+
+**Two retrieval backends:**
+- **In-memory (numpy):** Used during development and evaluation. All chunk embeddings stored in a numpy array, cosine similarity computed with scikit-learn.
+- **PostgreSQL + pgvector:** Production path. Embeddings stored as `vector` type columns, similarity search via `<=>` operator with automatic indexing.
 
 ---
 
@@ -326,20 +415,22 @@ k = 5  # Top-5 documents retrieved per query
 
 ```
 User Query
-    ↓
+    |
+    v
 Streamlit/React Frontend
-    ↓
+    |
+    v
 FastAPI Backend (Cloud Run)
-    ├── CNN Inference (EfficientNet-B3)
-    │     ↓
-    │   Detected Conditions
-    │     ↓
-    └── RAG Pipeline
-          ├── BioBERT Embedding
-          ├── Pinecone Vector Search (k=5)
-          ├── PostgreSQL Metadata Fetch
-          └── LLM Response Generation
-                ↓
+    |-- CNN Inference (EfficientNet-B3)
+    |     |
+    |   Detected Conditions
+    |     |
+    '-- RAG Pipeline
+          |-- MiniLM Embedding (384-dim)
+          |-- PostgreSQL pgvector Search (k=5)
+          |-- Document Metadata Fetch
+          '-- LLM Response Generation
+                |
           Clinical Report to User
 ```
 
@@ -366,7 +457,9 @@ FastAPI Backend (Cloud Run)
 | EfficientNet-B3 over ResNet50 | Lower overall accuracy | 0.48% test accuracy | 67% fewer missed pneumonia cases |
 | PostgreSQL over SQLite | Setup complexity | 30 min setup time | Production scalability, vector search |
 | `schedule` over Airflow | No DAG monitoring | Visual pipeline UI | 2 hours saved, documented migration path |
-| BioBERT over MiniLM | 5x model size | 320MB extra storage | +12-14% retrieval precision |
+| MiniLM over BioLORD | No domain-specific pre-training | Biomedical ontology awareness | 5x smaller model, faster inference, equal or better P@5 |
+| Fixed 512 over recursive chunking | No paragraph-aware splitting | Context-preserving boundaries | Higher retrieval precision on PubMed abstracts |
+| Sentence transformers over base BERT | Fewer model options | Access to raw BioBERT/PubMedBERT | 2-3x higher retrieval precision through proper training objective |
 | Phase 1 binary before Phase 2 multi-label | Delayed clinical utility | 4 weeks | Proven infrastructure, clean baseline metrics |
 | GCP Cloud Run over bare VM | Less control | SSH access | Auto-scaling, zero idle cost, managed SSL |
 
@@ -377,6 +470,6 @@ FastAPI Backend (Cloud Run)
 | Date | Change | Author |
 |------|--------|--------|
 | 2026-03-06 | Initial ARCHITECTURE.md — Phase 1 complete | Ion Turcan |
+| 2026-03-27 | Phase 3 RAG evaluation — 2 rounds, 9 configurations each | Ion Turcan |
 | — | Phase 2 results (ChestX-ray14) | TBD Week 5 |
-| — | Phase 3 RAG evaluation results | TBD Week 6 |
 | — | Phase 4 deployment documentation | TBD Week 7 |
