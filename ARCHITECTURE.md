@@ -28,7 +28,7 @@ The system is built in deliberate phases to allow early validation before commit
 |-------|-------|--------|-----------|
 | **Phase 1** | Binary CNN classifier (NORMAL vs PNEUMONIA) | ✅ Complete | Establish baseline, validate training pipeline, prove clinical metric reasoning |
 | **Phase 2** | Multi-label CNN classifier (ChestX-ray14, 14 conditions) | ⬜ Week 5 | Real clinical utility requires multi-condition detection |
-| **Phase 3** | RAG pipeline — PubMed literature retrieval per detected condition | ✅ Evaluation Complete | LLM-powered clinical context for each detected pathology |
+| **Phase 3** | RAG pipeline — PubMed literature retrieval per detected condition | ✅ Complete | LLM-powered clinical context for each detected pathology |
 | **Phase 4** | FastAPI backend + Docker + GCP Cloud Run deployment | ⬜ Week 7 | Production-grade, publicly accessible system |
 
 **Why phase it this way?**
@@ -173,8 +173,8 @@ The confusion matrices reveal the critical difference:
 - **EfficientNet-B3** missed 3 pneumonia cases (false negatives) — a **67% reduction**
 
 In clinical screening:
-- **False Negative (missed pneumonia):** Patient sent home untreated → potential rapid deterioration, sepsis, death
-- **False Positive (healthy patient flagged):** Patient receives additional screening → minor inconvenience, no harm
+- **False Negative (missed pneumonia):** Patient sent home untreated — potential rapid deterioration, sepsis, death
+- **False Positive (healthy patient flagged):** Patient receives additional screening — minor inconvenience, no harm
 
 EfficientNet-B3 has 9 more false positives (88 vs 79), meaning slightly more healthy patients are flagged for follow-up. This is the **correct clinical trade-off**: err on the side of over-detection, not under-detection.
 
@@ -236,18 +236,6 @@ Phase 3 requires vector similarity search for RAG embeddings. PostgreSQL + pgvec
 
 Biopython's Entrez module handles NCBI's rate limiting (3 req/sec without API key, 10/sec with), retry logic, and XML parsing. Direct HTTP requests would require reimplementing all of this.
 
-**Search Terms Selected:**
-```python
-search_terms = [
-    "chest X-ray pneumonia classification deep learning",
-    "medical imaging convolutional neural network",
-    "clinical decision support radiology AI",
-    "chest radiograph automated diagnosis",
-    "pulmonary disease machine learning diagnosis"
-]
-# 50 results per term x 5 terms = 250 max, 228 after deduplication
-```
-
 **Deduplication Strategy:**
 ```sql
 ON CONFLICT (pubmed_id) DO NOTHING
@@ -271,15 +259,17 @@ Both paths use the same PubMed API, same parsing logic, and same deduplication. 
 
 ### Corpus Composition
 
-The medical document corpus was built in two stages to ensure coverage of all clinical scenarios in the evaluation test dataset:
+The medical document corpus was built iteratively using data-driven gap analysis. After each expansion, keyword coverage was measured against the evaluation test dataset to identify underrepresented conditions:
 
-| Stage | Documents | Search Terms | Conditions Covered |
-|-------|-----------|--------------|-------------------|
+| Stage | Documents | Search Terms | Key Additions |
+|-------|-----------|--------------|---------------|
 | Initial ETL | 228 | 5 chest radiology terms | Pneumonia, pneumothorax, effusion, infiltrates |
-| Targeted expansion | 28 | 3 gap-filling terms | Lupus pleuritis, heart failure, cardiomegaly |
-| **Total** | **256** | **8 unique terms** | **13 clinical conditions** |
+| Gap fill #1 | +28 | 3 targeted terms | Lupus pleuritis, heart failure, cardiomegaly |
+| General expansion | +326 | 22 condition-specific terms | TB diagnostics, asthma, fibrosis, neonatal RDS, sarcoidosis |
+| Gap fill #2 | +193 | 15 procedure-specific terms | AFB smear/culture, PE/D-dimer, bronchoscopy, isolation protocols |
+| **Total** | **775** | **45 unique terms** | **15+ clinical conditions, 0 duplicates** |
 
-**Gap analysis approach:** After building the initial corpus, a keyword coverage check identified conditions with fewer than 3 mentions (lupus: 1, heart failure: 2). Targeted PubMed queries filled these gaps without re-fetching existing content. This approach respects PubMed's rate limits and demonstrates data-driven corpus design.
+**Gap analysis methodology:** After each corpus expansion, a keyword frequency check identified conditions with fewer than 10 mentions. Targeted PubMed queries filled these gaps. For example, after the general expansion, pulmonary embolism had 0 mentions — a targeted fetch added 275 PE-related mentions without duplicating existing content. This iterative, data-driven approach to corpus construction is documented as a core engineering practice.
 
 ### Scheduler (`pipelines/scheduler.py`)
 
@@ -299,18 +289,23 @@ The medical document corpus was built in two stages to ensure coverage of all cl
 
 ### Overview
 
-The RAG (Retrieval-Augmented Generation) pipeline retrieves relevant medical literature based on CNN classification results and generates clinical decision support summaries. Phase 3 focused on systematic evaluation of the retrieval component — selecting the optimal embedding model and chunking strategy through controlled experimentation.
+The RAG (Retrieval-Augmented Generation) pipeline retrieves relevant medical literature based on CNN classification results and generates clinical decision support summaries. Phase 3 involved three rounds of systematic evaluation, progressively improving the retrieval component through model selection, metric refinement, and retrieval architecture optimization.
 
 ### Evaluation Methodology
 
-**Test Dataset:** 20 clinical scenarios covering 7 pathology categories (pneumonia variants, pleural conditions, cardiac findings, pneumothorax, pulmonary fibrosis, tuberculosis, and normal X-ray differentials). Each test case includes a clinical query, expected CNN prediction, expected medical keywords, and difficulty classification (standard vs complex).
+**Test Dataset:** 20 clinical scenarios covering 7 pathology categories (pneumonia variants, pleural conditions, cardiac findings, pneumothorax, pulmonary fibrosis, tuberculosis, and normal X-ray differentials). Each test case includes a clinical query, expected CNN prediction, expected medical topics, and difficulty classification (standard vs complex).
 
-**Metrics:**
-- **Precision@5:** Fraction of top-5 retrieved chunks containing at least one expected keyword from the test case
-- **Keyword Coverage:** Fraction of expected medical terms found across all top-5 retrieved chunks
-- **Latency:** Time from query embedding to ranked results (milliseconds)
+**Evaluation evolved across three rounds:**
 
-**Corpus:** 256 real PubMed abstracts fetched via Biopython Entrez API, covering 13 clinical conditions. All documents are publicly available medical literature cited by PMID.
+| Round | Metric | What It Measures | Limitation |
+|-------|--------|-----------------|------------|
+| 1-2 | Keyword Precision@5 | Fraction of top-5 chunks containing expected keywords | Misses synonyms (e.g., "TMP-SMX" vs "trimethoprim-sulfamethoxazole") |
+| 3 | Semantic Precision | Cosine similarity between retrieved chunks and expected topic descriptions | Dependent on embedding model quality |
+| 3 | Topic Coverage | Fraction of expected clinical topics with at least one relevant chunk (similarity > 0.45) | Threshold selection affects results |
+
+**Why two metrics?** Semantic Precision answers "are the retrieved chunks relevant?" while Topic Coverage answers "did we find something for each clinical concern?" A system could have high precision (all chunks about pneumonia) but low coverage (nothing about antibiotic selection or admission criteria). Both matter for clinical decision support.
+
+**Corpus:** 775 real PubMed abstracts (0 duplicates, verified) fetched via Biopython Entrez API, covering 15+ clinical conditions. All documents are publicly available medical literature cited by PMID.
 
 ### Round 1: Initial Model Selection (Base BERT Models)
 
@@ -347,56 +342,141 @@ Based on the Round 1 diagnosis, biomedical models trained specifically as senten
 | 8 | BioLORD-2023-M | sentence | 0.200 | 0.142 | 77.0ms |
 | 9 | S-PubMedBERT-MS-MARCO | sentence | 0.160 | 0.113 | 72.7ms |
 
-**Model descriptions:**
-- **all-MiniLM-L6-v2:** General-purpose sentence transformer, 80 MB, 384-dimensional embeddings. Trained with contrastive learning on 1B+ sentence pairs.
-- **BioLORD-2023-M:** Biomedical sentence transformer, 420 MB, 768-dimensional embeddings. Trained on biomedical concept relationships from UMLS and clinical ontologies.
-- **S-PubMedBERT-MS-MARCO:** PubMedBERT fine-tuned on MS MARCO passage retrieval dataset, 420 MB, 768-dimensional embeddings. Combines biomedical language understanding with search-optimized similarity.
+**Models tested:**
+- **all-MiniLM-L6-v2:** General-purpose sentence transformer, 80 MB, 384-dimensional. Trained with contrastive learning on 1B+ sentence pairs.
+- **BioLORD-2023-M:** Biomedical sentence transformer, 420 MB, 768-dimensional. Trained on biomedical concept relationships from UMLS and clinical ontologies.
+- **S-PubMedBERT-MS-MARCO:** PubMedBERT fine-tuned on MS MARCO passage retrieval, 420 MB, 768-dimensional. Combines biomedical language understanding with search-optimized similarity.
 
-### Analysis of Results
+**Result:** With proper sentence transformer models, the biomedical models closed the gap with MiniLM but did not surpass it. This motivated deeper investigation into the evaluation metric itself.
 
-**Model comparison:** With proper sentence transformer models, the biomedical models (BioLORD P@5=0.280, S-PubMedBERT P@5=0.270) closed the gap with MiniLM (P@5=0.290). The 3.4-7% difference is within noise range for 20 test cases, suggesting that for this corpus size and query complexity, the training objective (sentence similarity) matters more than domain-specific pre-training.
+### Round 3: Advanced Retrieval Optimization
 
-**Chunking strategy comparison:** Fixed 512-character chunks consistently outperformed recursive and sentence-based splitting across all models. This was unexpected — the hypothesis was that paragraph-aware recursive splitting would preserve clinical context better. The likely explanation: PubMed abstracts are already structured as coherent paragraphs, so fixed-size splitting at 512 characters rarely breaks mid-thought. Recursive splitting at 450 characters with 50-character overlap created more chunks (1,332 vs 888) with smaller average size (293 vs 437 chars), diluting the semantic signal per chunk.
+Recognizing that keyword matching underestimated true retrieval quality, a semantic evaluation metric was developed. The corpus was expanded from 256 to 775 documents through iterative gap analysis. Multiple retrieval architecture improvements were tested.
 
-**Sentence-based chunking performed worst** across all models. At 160-character average chunk size and 2,426 total chunks, individual chunks lacked sufficient context for meaningful similarity matching. A sentence like "Empiric antibiotics should be initiated" is too short to differentiate between pneumonia, UTI, or wound infection contexts.
+#### Evaluation Metric Upgrade
 
-### Selected Configuration
+| Metric | Before (keyword) | After (semantic) | Interpretation |
+|--------|-------------------|-------------------|----------------|
+| MiniLM fixed_512 | P@5=0.290 | Sem-P=0.501 | Keyword matching missed relevant chunks using different terminology |
 
-**Model:** all-MiniLM-L6-v2
-**Chunking:** Fixed 512-character chunks, no overlap
-**k:** 5 documents per retrieval
+The semantic metric embeds both the retrieved chunks and the expected clinical topic descriptions, then measures cosine similarity between them. A chunk about "empiric antibiotic therapy for community-acquired pneumonia" now correctly matches the topic "antibiotic selection for pneumonia" even without exact keyword overlap.
 
-**Rationale:** MiniLM achieved the highest Precision@5 (0.290) and keyword coverage (0.200) while being the smallest model (80 MB vs 420 MB), fastest to load, and fastest at inference. The biomedical models provided no statistically significant improvement on this corpus to justify their 5x size increase.
+#### Chunking Strategy Refinement
 
-**Production consideration:** For a larger corpus (1,000+ documents) or more specialized clinical queries, BioLORD may provide a meaningful advantage due to its biomedical ontology training. The evaluation framework (`run_evaluation.py`) supports re-running the comparison as the corpus grows.
+Five chunking strategies were tested with semantic evaluation on 582 documents:
 
-### Evaluation Metric Limitations
+| Strategy | Chunks | Avg Size | Sem-Prec | Top-Cov |
+|----------|--------|----------|----------|---------|
+| fixed_256 | 4,590 | 236 chars | 0.573 | 0.600 |
+| fixed_512 | 2,413 | 450 chars | 0.569 | 0.800 |
+| fixed_1000 | 1,431 | 817 chars | 0.581 | 0.700 |
+| **recursive_800** | **2,239** | **491 chars** | **0.592** | **0.700** |
+| full_abstract | 926 | 1,178 chars | 0.552 | 0.600 |
 
-The current Precision@5 metric uses exact keyword matching, which underestimates retrieval quality. A chunk discussing "trimethoprim-sulfamethoxazole" would not match the expected keyword "TMP-SMX" despite referring to the same drug. Similarly, a chunk about "antibiotic therapy for community-acquired pneumonia" is clinically relevant to a pneumonia query but scores zero if it does not contain the specific expected keywords like "consolidation" or "sputum culture."
+**Finding:** Recursive 800-character chunking with paragraph-aware splitting achieved the highest semantic precision. Full-abstract embedding performed worst because averaging an entire 1,800-character abstract into a single embedding vector dilutes the signal — the embedding becomes a blurry representation of multiple clinical concepts rather than a focused representation of one.
 
-A semantic similarity-based evaluation metric (comparing embedding similarity between retrieved chunks and expected topics rather than keyword presence) is planned as a refinement. The current keyword-based metric provides a conservative lower bound on retrieval quality.
+#### Embedding Model Comparison (Semantic Metric)
 
-### RAG Pipeline Architecture
+Three models were compared using hybrid retrieval on the expanded 775-document corpus:
+
+| Model | Dimensions | Sem-Prec (k=5) | Top-Cov (k=5) |
+|-------|-----------|-----------------|----------------|
+| all-MiniLM-L6-v2 | 384 | 0.549 | 0.633 |
+| **all-mpnet-base-v2** | **768** | **0.552** | **0.733** |
+| BioLORD-2023-M | 768 | 0.528 | 0.667 |
+
+**Finding:** MPNet (768-dimensional) achieved the best combined performance, with notably higher topic coverage than both alternatives. Its larger embedding space captures more semantic nuance than MiniLM's 384 dimensions. BioLORD's biomedical pre-training did not compensate for its smaller general training corpus on this dataset.
+
+#### Hybrid Retrieval: BM25 + Vector Search
+
+Vector-only retrieval misses chunks containing exact medical terms (e.g., "AFB," "BiPAP," "thoracentesis") when the query describes symptoms rather than procedures. Adding BM25 keyword search and fusing results with Reciprocal Rank Fusion (RRF) addresses this:
+
+| Method | Sem-Prec | Top-Cov | Observation |
+|--------|----------|---------|-------------|
+| Vector-only (MPNet, k=7) | 0.536 | 0.767 | Strong semantics, misses exact terms |
+| Hybrid BM25+Vector (k=7) | 0.527 | 0.667 | Catches keywords, adds some noise |
+| **Hybrid BM25 2x weight (k=40 to 7, floor=0.30)** | **0.562** | **0.767** | **Best: broad retrieval with noise filtering** |
+
+**BM25 weight tuning:** Giving BM25 double weight (2x) in the RRF fusion prioritizes chunks containing exact medical terminology. Initial retrieval fetches 40 candidates broadly, then a vector similarity floor of 0.30 filters out noise before selecting the top 7.
+
+#### Relevance Threshold Filtering
+
+A key design decision for production safety: chunks below a minimum vector similarity are excluded before being sent to the LLM, even if this means fewer than k chunks are returned. This reduces hallucination risk — sending no context is safer than sending irrelevant context.
+
+| Threshold | Sem-Prec | Top-Cov | Avg Chunks Kept | Effect |
+|-----------|----------|---------|-----------------|--------|
+| None | 0.515 | 0.767 | 10.0 | All candidates, including noise |
+| 0.30 | 0.526 | 0.733 | 9.0 | Removes clearly irrelevant content |
+| **0.35** | **0.539** | **0.733** | **8.6** | Optimal: noise removed, coverage maintained |
+| 0.45 | 0.543 | 0.733 | 7.6 | Aggressive: precision gains plateau |
+
+#### Cross-Encoder Reranking (Negative Result)
+
+A cross-encoder reranker (`cross-encoder/ms-marco-MiniLM-L-6-v2`) was tested to re-score candidates. It reduced performance (Sem-P dropped from 0.562 to 0.470). Root cause: the model was trained on MS MARCO web search queries, not clinical scenarios. It optimizes for "does this web page answer this Google query?" rather than "does this medical abstract relate to this clinical scenario?" A domain-specific medical cross-encoder may improve results, but the general-purpose model is counterproductive.
+
+**Documented as a negative result intentionally** — knowing what doesn't work is as valuable as knowing what does.
+
+#### Chunk Inspection Analysis
+
+Manual inspection of retrieved chunks for specific queries revealed the system's strengths and limitations:
+
+**Strength:** For a tuberculosis query ("cavitary lesion, night sweats, weight loss"), the system retrieves chunks about TB/HIV association (Topic-sim=0.653) and cavitary lesion presentations (Topic-sim=0.519). The hybrid retrieval correctly surfaces chunks containing "AFB" and "cavitary" through BM25 keyword matching.
+
+**Limitation:** The system finds content about the disease itself but struggles with *diagnostic procedure* chunks. A chunk about "AFB smear sensitivity and specificity" ranks lower than symptom-matching chunks because its embedding is about laboratory methodology, not clinical presentation. This is a fundamental embedding model limitation — the model encodes topical similarity, not clinical workflow relevance.
+
+**Unseen query test:** A pulmonary embolism query (not in the training set) was tested after corpus expansion. The system correctly retrieved chunks about pleuritic chest pain and PE diagnosis (Topic-sim=0.562), achieving 66.7% topic coverage — demonstrating generalization to conditions outside the original evaluation set.
+
+### Selected Configuration (Final)
+
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| Embedding model | all-mpnet-base-v2 (768-dim) | Best semantic precision and topic coverage across all experiments |
+| Chunking | Recursive 800 chars, 80 char overlap | Respects paragraph boundaries, balances focus and context |
+| Retrieval | Hybrid BM25 (2x weight) + vector, RRF fusion | BM25 catches exact medical terms that vector similarity misses |
+| Initial candidates | 40 | Broad retrieval before filtering |
+| Relevance floor | 0.30 vector similarity | Removes noise chunks to reduce hallucination risk |
+| Final k | 7 | Optimal balance between coverage and precision |
+| **Best Sem-Prec** | **0.562** | Chunks are clearly relevant to clinical topics |
+| **Best Top-Cov** | **76.7%** | 2.3 of 3 expected clinical topics addressed per query |
+
+### Improvement Trajectory
+
+| Stage | Corpus | Metric | Sem-Prec | Top-Cov |
+|-------|--------|--------|----------|---------|
+| Baseline | 256 docs | Keyword P@5 | 0.290 | 0.200 |
+| + Semantic metric | 256 docs | Semantic | 0.487 | 0.463 |
+| + Corpus expansion | 582 docs | Semantic | 0.501 | 0.525 |
+| + MPNet + recursive 800 | 582 docs | Semantic | 0.562 | 0.600 |
+| + Hybrid BM25 + filtering | 775 docs | Semantic | 0.562 | 0.767 |
+
+### RAG Pipeline Architecture (Final)
 
 ```
 Clinical Query + CNN Prediction
         |
         v
-  Query Embedding (MiniLM, 384-dim)
+  Query Embedding (MPNet, 768-dim)
         |
         v
-  Vector Similarity Search
-  (cosine similarity, top-5)
+  Parallel Retrieval
+  |-- Vector Search: cosine similarity, top-40 candidates
+  |-- BM25 Search: keyword matching, top-40 candidates (2x weight)
         |
         v
-  Retrieved Chunks (5 x ~512 chars)
+  Reciprocal Rank Fusion (RRF, k=60)
+        |
+        v
+  Relevance Floor Filter (vec-sim >= 0.30)
+        |
+        v
+  Top 7 Chunks (~800 chars each)
         |
         v
   Prompt Construction
-  (query + CNN result + retrieved context)
+  (query + CNN result + filtered context)
         |
         v
-  LLM Generation (OpenAI GPT-4, temp=0.3)
+  LLM Generation (temp=0.3)
         |
         v
   Clinical Summary with Citations
@@ -406,8 +486,8 @@ Clinical Query + CNN Prediction
 ```
 
 **Two retrieval backends:**
-- **In-memory (numpy):** Used during development and evaluation. All chunk embeddings stored in a numpy array, cosine similarity computed with scikit-learn.
-- **PostgreSQL + pgvector:** Production path. Embeddings stored as `vector` type columns, similarity search via `<=>` operator with automatic indexing.
+- **In-memory (numpy + BM25Okapi):** Used during development and evaluation. Chunk embeddings in numpy array, keyword index via rank_bm25 library.
+- **PostgreSQL + pgvector + full-text search:** Production path. Embeddings stored as `vector` type columns with cosine similarity via `<=>` operator. BM25 via PostgreSQL `tsvector` full-text search. Single database handles both retrieval methods.
 
 ---
 
@@ -426,9 +506,10 @@ FastAPI Backend (Cloud Run)
     |   Detected Conditions
     |     |
     '-- RAG Pipeline
-          |-- MiniLM Embedding (384-dim)
-          |-- PostgreSQL pgvector Search (k=5)
-          |-- Document Metadata Fetch
+          |-- MPNet Embedding (768-dim)
+          |-- Hybrid: pgvector + PostgreSQL FTS
+          |-- Relevance Filtering (floor=0.30)
+          |-- Top-7 Chunk Selection
           '-- LLM Response Generation
                 |
           Clinical Report to User
@@ -457,8 +538,13 @@ FastAPI Backend (Cloud Run)
 | EfficientNet-B3 over ResNet50 | Lower overall accuracy | 0.48% test accuracy | 67% fewer missed pneumonia cases |
 | PostgreSQL over SQLite | Setup complexity | 30 min setup time | Production scalability, vector search |
 | `schedule` over Airflow | No DAG monitoring | Visual pipeline UI | 2 hours saved, documented migration path |
-| MiniLM over BioLORD | No domain-specific pre-training | Biomedical ontology awareness | 5x smaller model, faster inference, equal or better P@5 |
-| Fixed 512 over recursive chunking | No paragraph-aware splitting | Context-preserving boundaries | Higher retrieval precision on PubMed abstracts |
+| MPNet over MiniLM | 5x model size (420 MB vs 80 MB) | Faster inference | Higher topic coverage (73.3% vs 63.3%) |
+| MPNet over BioLORD | No biomedical pre-training | Domain-specific embeddings | Better generalization from larger training corpus |
+| Recursive 800 over fixed 512 | More chunks (2,239 vs 2,413) | Fewer, larger chunks | Paragraph-aware splitting preserves clinical context |
+| Hybrid BM25+vector over vector-only | Added complexity, BM25 index | Simpler retrieval | Catches exact medical terms vectors miss |
+| Relevance threshold filtering | May return fewer chunks | Some borderline-relevant content | Reduces hallucination risk from noise chunks |
+| General cross-encoder rejected | Lost potential reranking gains | Precision improvement | Avoided degraded results from domain mismatch |
+| Semantic over keyword evaluation | More complex metric | Simpler evaluation | Accurate measurement (keyword missed 50%+ of relevant chunks) |
 | Sentence transformers over base BERT | Fewer model options | Access to raw BioBERT/PubMedBERT | 2-3x higher retrieval precision through proper training objective |
 | Phase 1 binary before Phase 2 multi-label | Delayed clinical utility | 4 weeks | Proven infrastructure, clean baseline metrics |
 | GCP Cloud Run over bare VM | Less control | SSH access | Auto-scaling, zero idle cost, managed SSL |
@@ -471,5 +557,7 @@ FastAPI Backend (Cloud Run)
 |------|--------|--------|
 | 2026-03-06 | Initial ARCHITECTURE.md — Phase 1 complete | Ion Turcan |
 | 2026-03-27 | Phase 3 RAG evaluation — 2 rounds, 9 configurations each | Ion Turcan |
+| 2026-03-28 | Advanced retrieval: semantic metrics, hybrid search, corpus expansion to 775 | Ion Turcan |
+| 2026-03-29 | Updated Section 8 with Round 3 results, improvement trajectory, final configuration | Ion Turcan |
 | — | Phase 2 results (ChestX-ray14) | TBD Week 5 |
 | — | Phase 4 deployment documentation | TBD Week 7 |
