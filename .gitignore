@@ -103,3 +103,10 @@ terraform.tfstate.backup
 *.tmp
 *.bak
 *.orig
+
+# ============================================================
+# Expansion work (keep locally, don't commit)
+# ============================================================
+fetch_corpus_expansion.py
+sync_expanded_to_postgres.py
+pipelines/pubmed_cache/documents_775_backup.json

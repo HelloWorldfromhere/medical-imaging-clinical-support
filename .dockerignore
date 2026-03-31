@@ -1,0 +1,60 @@
+# ============================================================
+# .dockerignore — Keep Docker image small
+# ============================================================
+# Everything listed here is NOT sent to Docker during build.
+# The API only needs: api/, rag/, evaluation/, pipelines/pubmed_cache/documents.json
+# ============================================================
+
+# Git
+.git/
+.gitignore
+
+# Training data (huge — not needed for API)
+data/
+
+# Model checkpoints (not needed for retrieval API)
+models/
+
+# Logs
+logs/
+
+# Database files
+database/
+
+# Scripts (dev/evaluation tools)
+scripts/
+
+# Test files
+test_*.py
+
+# Evaluation plots
+evaluation/plots/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environment
+.env
+.env.*
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+.docker/
+docker-compose.yml
+
+# Misc
+*.md
+LICENSE
+*.bak
+*.tmp
+*.log
+
+# Backup files
+pipelines/pubmed_cache/documents_775_backup.json
