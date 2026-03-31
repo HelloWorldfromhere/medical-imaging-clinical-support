@@ -1,0 +1,14 @@
+# API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+
+# ML / Retrieval (already installed)
+sentence-transformers
+scikit-learn
+numpy
+psycopg2-binary
+python-dotenv
+torch
+langchain-text-splitters
+rank-bm25
