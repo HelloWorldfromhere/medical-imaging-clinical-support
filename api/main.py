@@ -3,15 +3,16 @@ FastAPI Backend — Medical Imaging RAG Clinical Decision Support
 Wraps the existing RAGPipeline with REST API endpoints.
 
 Endpoints:
-    GET  /health          — Service health check
-    POST /retrieve         — Retrieve relevant chunks for a query
-    POST /query            — Full RAG pipeline: retrieve + generate
-    GET  /stats            — Corpus and index statistics
+    GET  /            — Landing page with interactive demo
+    GET  /health      — Service health check
+    POST /retrieve    — Retrieve relevant chunks for a query
+    POST /query       — Full RAG pipeline: retrieve + generate
+    GET  /stats       — Corpus and index statistics
 
 Run locally:
-    uvicorn api.main:app --reload --port 8000
+    uvicorn api.main:app --reload --port 8080
 
-Then visit: http://localhost:8000/docs for interactive API docs
+Then visit: http://localhost:8080 for the demo
 """
 
 import os
@@ -23,6 +24,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 from api.schemas import (
     QueryRequest,
@@ -52,15 +54,13 @@ def load_pipeline():
     logger.info("Initializing RAG pipeline...")
     start = time.perf_counter()
 
-    # Use best config from evaluation (MPNet, recursive 800/80)
     pipeline = RAGPipeline(
-        model_key="minilm",  # Change to your best model key
-        strategy_key="recursive_paragraph",  # Change to your best strategy key
+        model_key="minilm",
+        strategy_key="recursive_paragraph",
         k=7,
         use_postgres=False,
     )
 
-    # Load documents from JSON cache
     docs_path = Path("pipelines/pubmed_cache/documents.json")
     if not docs_path.exists():
         raise FileNotFoundError(f"Corpus not found: {docs_path}")
@@ -71,12 +71,19 @@ def load_pipeline():
     corpus_size = len(documents)
     logger.info(f"Loaded {corpus_size} documents from cache")
 
-    # Build in-memory index
     pipeline.build_index(documents)
     chunk_count = len(pipeline._chunk_texts)
 
     elapsed = time.perf_counter() - start
     logger.info(f"Pipeline ready: {corpus_size} docs, {chunk_count} chunks, {elapsed:.1f}s")
+
+
+# ── Load landing page HTML ──────────────────────────────────────────────────
+
+_landing_html = ""
+_html_path = Path(__file__).parent / "index.html"
+if _html_path.exists():
+    _landing_html = _html_path.read_text(encoding="utf-8")
 
 
 # ── App lifecycle ───────────────────────────────────────────────────────────
@@ -95,19 +102,15 @@ app = FastAPI(
     title="Medical Imaging RAG Clinical Decision Support",
     description=(
         "A RAG-based clinical decision support system that retrieves relevant "
-        "medical literature based on chest X-ray findings and clinical queries. "
-        "Designed as a portfolio project demonstrating hybrid BM25 + vector "
-        "retrieval with systematic evaluation across embedding models and "
-        "chunking strategies."
+        "medical literature based on chest X-ray findings and clinical queries."
     ),
     version="1.0.0",
     lifespan=lifespan,
 )
 
-# CORS — allow frontend or demo tools to call the API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tighten for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -115,6 +118,12 @@ app.add_middleware(
 
 
 # ── Endpoints ───────────────────────────────────────────────────────────────
+
+@app.get("/", response_class=HTMLResponse)
+async def landing_page():
+    """Serve the landing page."""
+    return _landing_html
+
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
@@ -131,9 +140,6 @@ async def health_check():
 async def retrieve(request: RetrieveRequest):
     """
     Retrieve relevant medical literature chunks for a clinical query.
-
-    Returns the top-k most relevant chunks with similarity scores.
-    Uses hybrid BM25 + vector retrieval with RRF fusion.
     """
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not initialized")
@@ -170,9 +176,6 @@ async def retrieve(request: RetrieveRequest):
 async def query(request: QueryRequest):
     """
     Full RAG pipeline: retrieve relevant literature + generate clinical summary.
-
-    Accepts a clinical query and optional CNN prediction results.
-    Returns retrieved chunks and a generated clinical summary.
     """
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not initialized")
