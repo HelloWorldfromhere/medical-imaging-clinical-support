@@ -1,18 +1,12 @@
 """
 FastAPI Backend — Medical Imaging RAG Clinical Decision Support
-Wraps the existing RAGPipeline with REST API endpoints.
 
 Endpoints:
     GET  /            — Landing page with interactive demo
     GET  /health      — Service health check
     POST /retrieve    — Retrieve relevant chunks for a query
-    POST /query       — Full RAG pipeline: retrieve + generate
+    POST /query       — Full RAG pipeline: retrieve + LLM summary
     GET  /stats       — Corpus and index statistics
-
-Run locally:
-    uvicorn api.main:app --reload --port 8080
-
-Then visit: http://localhost:8080 for the demo
 """
 
 import os
@@ -35,12 +29,11 @@ from api.schemas import (
     HealthResponse,
     StatsResponse,
 )
+from api.llm_provider import generate_clinical_summary
 from rag.retrieval_pipeline import RAGPipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
-
-# ── Global pipeline instance ────────────────────────────────────────────────
 
 pipeline: RAGPipeline = None
 corpus_size: int = 0
@@ -48,9 +41,7 @@ chunk_count: int = 0
 
 
 def load_pipeline():
-    """Load documents and build in-memory index."""
     global pipeline, corpus_size, chunk_count
-
     logger.info("Initializing RAG pipeline...")
     start = time.perf_counter()
 
@@ -70,7 +61,6 @@ def load_pipeline():
 
     corpus_size = len(documents)
     logger.info(f"Loaded {corpus_size} documents from cache")
-
     pipeline.build_index(documents)
     chunk_count = len(pipeline._chunk_texts)
 
@@ -78,33 +68,23 @@ def load_pipeline():
     logger.info(f"Pipeline ready: {corpus_size} docs, {chunk_count} chunks, {elapsed:.1f}s")
 
 
-# ── Load landing page HTML ──────────────────────────────────────────────────
-
 _landing_html = ""
 _html_path = Path(__file__).parent / "index.html"
 if _html_path.exists():
     _landing_html = _html_path.read_text(encoding="utf-8")
 
 
-# ── App lifecycle ───────────────────────────────────────────────────────────
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load pipeline on startup, cleanup on shutdown."""
     load_pipeline()
     yield
     logger.info("Shutting down...")
 
 
-# ── FastAPI app ─────────────────────────────────────────────────────────────
-
 app = FastAPI(
     title="Medical Imaging RAG Clinical Decision Support",
-    description=(
-        "A RAG-based clinical decision support system that retrieves relevant "
-        "medical literature based on chest X-ray findings and clinical queries."
-    ),
-    version="1.0.0",
+    description="RAG-based clinical decision support with hybrid BM25 + vector retrieval and LLM-generated summaries.",
+    version="1.1.0",
     lifespan=lifespan,
 )
 
@@ -117,17 +97,13 @@ app.add_middleware(
 )
 
 
-# ── Endpoints ───────────────────────────────────────────────────────────────
-
 @app.get("/", response_class=HTMLResponse)
 async def landing_page():
-    """Serve the landing page."""
     return _landing_html
 
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Service health check."""
     return HealthResponse(
         status="healthy",
         corpus_loaded=corpus_size > 0,
@@ -138,21 +114,44 @@ async def health_check():
 
 @app.post("/retrieve", response_model=RetrieveResponse)
 async def retrieve(request: RetrieveRequest):
-    """
-    Retrieve relevant medical literature chunks for a clinical query.
-    """
+    if pipeline is None:
+        raise HTTPException(status_code=503, detail="Pipeline not initialized")
+    start = time.perf_counter()
+    try:
+        docs, retrieval_ms = pipeline.retrieve(request.query)
+    except Exception as e:
+        logger.error(f"Retrieval error: {e}")
+        raise HTTPException(status_code=500, detail=f"Retrieval failed: {str(e)}")
+    total_ms = (time.perf_counter() - start) * 1000
+    chunks = [
+        RetrievedChunk(
+            chunk_text=doc.chunk_text,
+            similarity=round(doc.similarity, 4),
+            doc_id=doc.doc_id,
+            chunk_index=doc.chunk_index,
+        )
+        for doc in docs
+    ]
+    return RetrieveResponse(
+        query=request.query,
+        chunks=chunks,
+        retrieval_latency_ms=round(retrieval_ms, 2),
+        total_latency_ms=round(total_ms, 2),
+    )
+
+
+@app.post("/query", response_model=QueryResponse)
+async def query(request: QueryRequest):
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not initialized")
 
-    start = time.perf_counter()
+    total_start = time.perf_counter()
 
     try:
         docs, retrieval_ms = pipeline.retrieve(request.query)
     except Exception as e:
         logger.error(f"Retrieval error: {e}")
         raise HTTPException(status_code=500, detail=f"Retrieval failed: {str(e)}")
-
-    total_ms = (time.perf_counter() - start) * 1000
 
     chunks = [
         RetrievedChunk(
@@ -164,60 +163,41 @@ async def retrieve(request: RetrieveRequest):
         for doc in docs
     ]
 
-    return RetrieveResponse(
-        query=request.query,
-        chunks=chunks,
-        retrieval_latency_ms=round(retrieval_ms, 2),
-        total_latency_ms=round(total_ms, 2),
-    )
-
-
-@app.post("/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
-    """
-    Full RAG pipeline: retrieve relevant literature + generate clinical summary.
-    """
-    if pipeline is None:
-        raise HTTPException(status_code=503, detail="Pipeline not initialized")
-
+    gen_start = time.perf_counter()
     try:
-        response = pipeline.query(
+        chunk_dicts = [
+            {"doc_id": c.doc_id, "chunk_text": c.chunk_text, "similarity": c.similarity}
+            for c in chunks
+        ]
+        summary = generate_clinical_summary(
             query=request.query,
             cnn_prediction=request.cnn_prediction,
             confidence=request.confidence,
+            chunks=chunk_dicts,
         )
     except Exception as e:
-        logger.error(f"Query error: {e}")
-        raise HTTPException(status_code=500, detail=f"Query failed: {str(e)}")
+        logger.error(f"Generation error: {e}")
+        summary = f"*Summary generation failed: {str(e)}*"
 
-    chunks = [
-        RetrievedChunk(
-            chunk_text=doc.chunk_text,
-            similarity=round(doc.similarity, 4),
-            doc_id=doc.doc_id,
-            chunk_index=doc.chunk_index,
-        )
-        for doc in response.retrieved_docs
-    ]
+    gen_ms = (time.perf_counter() - gen_start) * 1000
+    total_ms = (time.perf_counter() - total_start) * 1000
 
     return QueryResponse(
-        query=response.query,
-        cnn_prediction=response.cnn_prediction,
-        confidence=response.confidence,
+        query=request.query,
+        cnn_prediction=request.cnn_prediction,
+        confidence=request.confidence,
         chunks=chunks,
-        generated_response=response.generated_response,
-        retrieval_latency_ms=response.retrieval_latency_ms,
-        generation_latency_ms=response.generation_latency_ms,
-        total_latency_ms=response.total_latency_ms,
+        generated_response=summary,
+        retrieval_latency_ms=round(retrieval_ms, 2),
+        generation_latency_ms=round(gen_ms, 2),
+        total_latency_ms=round(total_ms, 2),
     )
 
 
 @app.get("/stats", response_model=StatsResponse)
 async def stats():
-    """Corpus and index statistics."""
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not initialized")
-
     return StatsResponse(
         corpus_size=corpus_size,
         chunk_count=chunk_count,

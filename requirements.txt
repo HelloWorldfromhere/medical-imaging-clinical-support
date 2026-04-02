@@ -12,6 +12,10 @@ python-dotenv
 langchain-text-splitters
 rank-bm25
 
-# PyTorch CPU-only (much smaller - Cloud Run doesn't have GPU)
+# LLM Providers
+google-generativeai
+requests
+
+# PyTorch CPU-only (Cloud Run doesn't have GPU)
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch
