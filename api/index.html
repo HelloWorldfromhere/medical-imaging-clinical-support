@@ -6,46 +6,46 @@
 <title>Medical RAG Clinical Decision Support</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.6; }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f8f9fa;
-    color: #1a1a2e;
-    line-height: 1.6;
-}
+.disclaimer-bar { background: #fef2f2; border-bottom: 2px solid #fca5a5; padding: 10px 2rem; text-align: center; font-size: 0.8rem; color: #991b1b; }
+.disclaimer-bar strong { color: #7f1d1d; }
 
-.hero {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-    padding: 3rem 2rem 2.5rem;
-    text-align: center;
-}
-
+.hero { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 2.5rem 2rem 2rem; text-align: center; }
 .hero h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
 .hero p { font-size: 0.95rem; opacity: 0.85; max-width: 600px; margin: 0 auto 1.5rem; }
-
 .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
 .badge { font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
 .badge.highlight { background: rgba(29, 158, 117, 0.3); border-color: rgba(29, 158, 117, 0.5); }
+.pipeline-visual { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 1.5rem 0; flex-wrap: wrap; }
+.pipeline-step { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; }
+.pipeline-arrow { font-size: 0.8rem; opacity: 0.5; }
 
-.container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
-
+.container { max-width: 840px; margin: 0 auto; padding: 0 1.5rem; }
 .query-section { margin-top: -1.5rem; position: relative; z-index: 1; }
 .query-card { background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); padding: 1.5rem; }
 .query-card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: #203a43; }
 
-.query-input {
-    width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 8px;
-    font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 80px; transition: border-color 0.2s;
-}
+.input-row { display: flex; gap: 12px; margin-bottom: 0.75rem; }
+.input-row .query-wrap { flex: 1; }
+.input-row .condition-wrap { width: 220px; flex-shrink: 0; }
+
+.query-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 110px; transition: border-color 0.2s; }
 .query-input:focus { outline: none; border-color: #2c5364; }
 
-.query-actions { display: flex; gap: 8px; margin-top: 0.75rem; align-items: center; }
+.condition-label { font-size: 0.8rem; font-weight: 500; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.condition-label .ai-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #dbeafe; color: #1e40af; font-weight: 600; }
+.condition-label .override-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #fef3c7; color: #92400e; font-weight: 600; display: none; }
 
-.btn {
-    padding: 10px 24px; border: none; border-radius: 8px;
-    font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
-}
+.condition-select { width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 0.85rem; font-family: inherit; background: white; cursor: pointer; transition: border-color 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 01.708 0L8 10.293l5.646-5.647a.5.5 0 01.708.708l-6 6a.5.5 0 01-.708 0l-6-6a.5.5 0 010-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.condition-select:focus { outline: none; border-color: #2c5364; }
+.condition-select.active { border-color: #065f46; background-color: #f0fdf4; }
+
+.condition-info { font-size: 0.75rem; color: #64748b; margin-top: 6px; min-height: 2.5em; }
+.condition-info.warning { color: #92400e; background: #fffbeb; padding: 4px 8px; border-radius: 4px; border: 1px solid #fde68a; }
+
+.query-actions { display: flex; gap: 8px; align-items: center; }
+.btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
 .btn-primary { background: #2c5364; color: white; }
 .btn-primary:hover { background: #203a43; }
 .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
@@ -56,54 +56,36 @@ body {
 .btn-generate:disabled { background: #94a3b8; cursor: not-allowed; }
 
 .examples { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.75rem; }
-.example-chip {
-    font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;
-    background: #f1f5f9; color: #475569; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.15s;
-}
+.example-chip { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; background: #f1f5f9; color: #475569; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.15s; }
 .example-chip:hover { background: #e2e8f0; border-color: #cbd5e1; }
-
 .status-bar { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; min-height: 1.5em; }
 
 .results-section { margin-top: 1.5rem; display: none; }
 .results-section.visible { display: block; }
 
-.summary-card {
-    background: white; border-radius: 12px; border: 2px solid #065f46;
-    padding: 1.5rem; margin-bottom: 1rem;
-}
-.summary-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
-    padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0;
-}
+.condition-banner { display: flex; align-items: center; gap: 12px; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; }
+.condition-banner.ai { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.condition-banner.manual { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.condition-banner .label { font-weight: 600; }
+
+.summary-card { background: white; border-radius: 12px; border: 2px solid #065f46; padding: 1.5rem; margin-bottom: 1rem; }
+.summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; }
 .summary-header h3 { font-size: 1rem; font-weight: 600; color: #065f46; }
 .summary-timing { font-size: 0.75rem; color: #64748b; }
-.summary-content {
-    font-size: 0.88rem; color: #1e293b; line-height: 1.8;
-}
+.summary-content { font-size: 0.88rem; color: #1e293b; line-height: 1.8; }
 .summary-content strong { color: #065f46; }
 .summary-content p { margin-bottom: 0.75rem; }
 .summary-content ul, .summary-content ol { margin: 0.5rem 0 0.75rem 1.5rem; }
 .summary-content li { margin-bottom: 0.25rem; }
 
-.generate-prompt {
-    background: #f0fdf4; border: 1px dashed #86efac; border-radius: 10px;
-    padding: 1.25rem; text-align: center; margin-bottom: 1rem;
-}
+.generate-prompt { background: #f0fdf4; border: 1px dashed #86efac; border-radius: 10px; padding: 1.25rem; text-align: center; margin-bottom: 1rem; }
 .generate-prompt p { font-size: 0.85rem; color: #166534; margin-bottom: 0.75rem; }
 
-.results-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;
-}
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
 .results-header h3 { font-size: 0.95rem; font-weight: 600; color: #203a43; }
-.latency-badge {
-    font-size: 0.75rem; padding: 3px 10px; border-radius: 20px;
-    background: #ecfdf5; color: #065f46; font-weight: 500;
-}
+.latency-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; background: #ecfdf5; color: #065f46; font-weight: 500; }
 
-.chunk-card {
-    background: white; border-radius: 10px; border: 1px solid #e2e8f0;
-    padding: 1rem 1.25rem; margin-bottom: 0.75rem; transition: border-color 0.2s;
-}
+.chunk-card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; padding: 1rem 1.25rem; margin-bottom: 0.75rem; transition: border-color 0.2s; }
 .chunk-card:hover { border-color: #94a3b8; }
 .chunk-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
 .chunk-source { font-size: 0.75rem; color: #64748b; font-weight: 500; }
@@ -119,15 +101,9 @@ body {
 .info-card h4 { font-size: 0.8rem; color: #64748b; font-weight: 500; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
 .info-card .value { font-size: 1.4rem; font-weight: 600; color: #1a1a2e; }
 .info-card .detail { font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
-
 .section-title { font-size: 1rem; font-weight: 600; color: #203a43; margin-bottom: 0.5rem; }
-
 .tech-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.75rem; }
 .tech-tag { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; background: #f0f4ff; color: #3b5998; border: 1px solid #dbe4ff; font-weight: 500; }
-
-.pipeline-visual { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 1.5rem 0; flex-wrap: wrap; }
-.pipeline-step { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; }
-.pipeline-arrow { font-size: 0.8rem; opacity: 0.5; }
 
 .footer { text-align: center; padding: 2rem; border-top: 1px solid #e2e8f0; margin-top: 1rem; }
 .footer p { font-size: 0.85rem; color: #64748b; }
@@ -138,18 +114,20 @@ body {
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
+    .input-row { flex-direction: column; }
+    .input-row .condition-wrap { width: 100%; }
     .hero h1 { font-size: 1.4rem; }
     .info-grid { grid-template-columns: 1fr 1fr; }
-    .pipeline-visual { gap: 4px; }
-    .pipeline-step { font-size: 0.65rem; padding: 4px 8px; }
 }
 </style>
 </head>
 <body>
- <div style="background:#fef2f2;border-bottom:2px solid #fca5a5;padding:10px 2rem;text-align:center;font-size:0.8rem;color:#991b1b;">
+
+<div class="disclaimer-bar">
     <strong>Educational Demo Only</strong> — This tool is NOT for clinical use. It does not provide medical advice, diagnosis, or treatment recommendations. All outputs are AI-generated and have not been clinically validated. The developer assumes no liability for any use of this system. Always consult a qualified healthcare professional.
-</div>   
+</div>
+
 <div class="hero">
     <h1>Medical RAG Clinical Decision Support</h1>
     <p>AI-powered medical literature retrieval for chest X-ray findings. Hybrid BM25 + vector search with LLM-generated clinical summaries.</p>
@@ -158,7 +136,7 @@ body {
         <span class="pipeline-arrow">&rarr;</span>
         <span class="pipeline-step">CNN Classification</span>
         <span class="pipeline-arrow">&rarr;</span>
-        <span class="pipeline-step">Hybrid Retrieval</span>
+        <span class="pipeline-step">Condition-Focused Retrieval</span>
         <span class="pipeline-arrow">&rarr;</span>
         <span class="pipeline-step">LLM Clinical Summary</span>
     </div>
@@ -168,7 +146,7 @@ body {
         <span class="badge">Llama 3.3</span>
         <span class="badge">Docker</span>
         <span class="badge highlight">775 PubMed docs</span>
-        <span class="badge highlight">76.7% topic coverage</span>
+        <span class="badge highlight">14 chest conditions</span>
     </div>
 </div>
 
@@ -176,30 +154,63 @@ body {
     <div class="query-section">
         <div class="query-card">
             <h2>Query the medical literature</h2>
-            <textarea class="query-input" id="queryInput" placeholder="Describe a clinical scenario or ask a medical question...&#10;&#10;Example: 65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD"></textarea>
+            <div class="input-row">
+                <div class="query-wrap">
+                    <textarea class="query-input" id="queryInput" placeholder="Describe a clinical scenario or symptoms...&#10;&#10;Example: 65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD and current smoker"></textarea>
+                </div>
+                <div class="condition-wrap">
+                    <div class="condition-label">
+                        Condition
+                        <span class="ai-badge" id="aiBadge">AI-detected</span>
+                        <span class="override-badge" id="overrideBadge">Doctor override</span>
+                    </div>
+                    <select class="condition-select" id="conditionSelect" onchange="onConditionChange()">
+                        <option value="">Auto-detect from query</option>
+                        <option value="Atelectasis">Atelectasis</option>
+                        <option value="Cardiomegaly">Cardiomegaly</option>
+                        <option value="Consolidation">Consolidation</option>
+                        <option value="Edema">Pulmonary Edema</option>
+                        <option value="Effusion">Pleural Effusion</option>
+                        <option value="Emphysema">Emphysema</option>
+                        <option value="Fibrosis">Pulmonary Fibrosis</option>
+                        <option value="Hernia">Diaphragmatic Hernia</option>
+                        <option value="Infiltration">Infiltration</option>
+                        <option value="Mass">Pulmonary Mass</option>
+                        <option value="Nodule">Pulmonary Nodule</option>
+                        <option value="Pleural Thickening">Pleural Thickening</option>
+                        <option value="Pneumonia">Pneumonia</option>
+                        <option value="Pneumothorax">Pneumothorax</option>
+                        <option value="Normal">Normal</option>
+                    </select>
+                    <div class="condition-info" id="conditionInfo">
+                        Select a condition to focus retrieval on disease-specific literature, or leave on auto-detect.
+                    </div>
+                </div>
+            </div>
             <div class="query-actions">
                 <button class="btn btn-primary" id="searchBtn" onclick="runRetrieve()">Search</button>
-                <button class="btn btn-generate" id="generateBtn" onclick="runFullQuery()" style="display:none;">Generate Clinical Summary</button>
+                <button class="btn btn-generate" id="generateBtn2" onclick="runFullQuery()" style="display:none;">Generate Clinical Summary</button>
                 <button class="btn btn-secondary" onclick="clearResults()">Clear</button>
             </div>
             <div class="examples">
-                <span class="example-chip" onclick="setQuery('65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD')">Pneumonia + COPD</span>
-                <span class="example-chip" onclick="setQuery('30-year-old male with spontaneous left pneumothorax, no trauma history')">Pneumothorax</span>
-                <span class="example-chip" onclick="setQuery('70-year-old with large right-sided pleural effusion and mediastinal shift')">Pleural effusion</span>
-                <span class="example-chip" onclick="setQuery('62-year-old male with cavitary lesion in right upper lobe, night sweats')">TB suspicion</span>
+                <span class="example-chip" onclick="setExample('65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD', 'Pneumonia')">Pneumonia + COPD</span>
+                <span class="example-chip" onclick="setExample('30-year-old male with spontaneous left pneumothorax, no trauma history', 'Pneumothorax')">Pneumothorax</span>
+                <span class="example-chip" onclick="setExample('70-year-old with large right-sided pleural effusion and mediastinal shift', 'Effusion')">Pleural effusion</span>
+                <span class="example-chip" onclick="setExample('62-year-old male with cavitary lesion in right upper lobe, night sweats', '')">TB suspicion</span>
+                <span class="example-chip" onclick="setExample('55-year-old female with enlarged cardiac silhouette, acute onset dyspnea', 'Cardiomegaly')">Cardiomegaly</span>
+                <span class="example-chip" onclick="setExample('80-year-old female with bilateral interstitial opacities and progressive dyspnea over 6 months', 'Fibrosis')">Pulmonary fibrosis</span>
             </div>
             <div class="status-bar" id="statusBar"></div>
         </div>
     </div>
 
     <div class="results-section" id="resultsSection">
+        <div id="conditionBanner"></div>
         <div id="summaryContainer"></div>
-
         <div id="generatePrompt" class="generate-prompt" style="display:none;">
             <p>Retrieved relevant literature. Generate an AI clinical summary from these sources?</p>
-            <button class="btn btn-generate" id="generateBtn2" onclick="runFullQuery()">Generate Clinical Summary</button>
+            <button class="btn btn-generate" id="generateBtn3" onclick="runFullQuery()">Generate Clinical Summary</button>
         </div>
-
         <div class="results-header">
             <h3>Retrieved literature</h3>
             <span class="latency-badge" id="latencyBadge"></span>
@@ -209,66 +220,21 @@ body {
 
     <div class="info-section">
         <p class="section-title">System metrics</p>
-        <div class="info-grid" id="statsGrid">
-            <div class="info-card">
-                <h4>Corpus</h4>
-                <div class="value" id="statCorpus">--</div>
-                <div class="detail">PubMed abstracts</div>
-            </div>
-            <div class="info-card">
-                <h4>Chunks</h4>
-                <div class="value" id="statChunks">--</div>
-                <div class="detail">indexed segments</div>
-            </div>
-            <div class="info-card">
-                <h4>Sem. precision</h4>
-                <div class="value">0.562</div>
-                <div class="detail">cosine similarity</div>
-            </div>
-            <div class="info-card">
-                <h4>Topic coverage</h4>
-                <div class="value">76.7%</div>
-                <div class="detail">across 20 test cases</div>
-            </div>
-        </div>
-
-        <p class="section-title" style="margin-top: 1.5rem;">Evaluation highlights</p>
         <div class="info-grid">
-            <div class="info-card">
-                <h4>Embedding models tested</h4>
-                <div class="value">5</div>
-                <div class="detail">MiniLM, MPNet, BioLORD, BioBERT, PubMedBERT</div>
-            </div>
-            <div class="info-card">
-                <h4>Chunking strategies</h4>
-                <div class="value">5</div>
-                <div class="detail">fixed, recursive, sentence-based</div>
-            </div>
-            <div class="info-card">
-                <h4>Evaluation rounds</h4>
-                <div class="value">3</div>
-                <div class="detail">keyword, semantic, hybrid</div>
-            </div>
-            <div class="info-card">
-                <h4>Best model</h4>
-                <div class="value" style="font-size: 1.1rem;">MPNet</div>
-                <div class="detail">768-dim, general-purpose won over biomedical</div>
-            </div>
+            <div class="info-card"><h4>Corpus</h4><div class="value" id="statCorpus">--</div><div class="detail">PubMed abstracts</div></div>
+            <div class="info-card"><h4>Chunks</h4><div class="value" id="statChunks">--</div><div class="detail">indexed segments</div></div>
+            <div class="info-card"><h4>Sem. precision</h4><div class="value">0.562</div><div class="detail">cosine similarity</div></div>
+            <div class="info-card"><h4>Topic coverage</h4><div class="value">76.7%</div><div class="detail">across 20 test cases</div></div>
         </div>
-
-        <div style="margin-top: 1.5rem;">
-            <p class="section-title">Tech stack</p>
-            <div class="tech-tags">
-                <span class="tech-tag">PyTorch</span>
-                <span class="tech-tag">EfficientNet-B3</span>
-                <span class="tech-tag">sentence-transformers</span>
-                <span class="tech-tag">BM25 + RRF</span>
-                <span class="tech-tag">Llama 3.3 70B (Groq)</span>
-                <span class="tech-tag">FastAPI</span>
-                <span class="tech-tag">PostgreSQL + pgvector</span>
-                <span class="tech-tag">Docker</span>
-                <span class="tech-tag">GCP Cloud Run</span>
-            </div>
+        <p class="section-title" style="margin-top: 1.5rem;">Supported conditions</p>
+        <div class="tech-tags" id="conditionTags"></div>
+        <p class="section-title" style="margin-top: 1.5rem;">Tech stack</p>
+        <div class="tech-tags">
+            <span class="tech-tag">PyTorch</span><span class="tech-tag">EfficientNet-B3</span>
+            <span class="tech-tag">sentence-transformers</span><span class="tech-tag">BM25 + RRF</span>
+            <span class="tech-tag">Llama 3.3 70B (Groq)</span><span class="tech-tag">FastAPI</span>
+            <span class="tech-tag">PostgreSQL + pgvector</span><span class="tech-tag">Docker</span>
+            <span class="tech-tag">GCP Cloud Run</span>
         </div>
     </div>
 </div>
@@ -281,29 +247,76 @@ body {
         <a href="https://www.linkedin.com/in/ionel-turcan-ab6890234/" target="_blank">LinkedIn</a>
         <a href="/docs" target="_blank">API Docs</a>
     </div>
-    <p style="margin-top: 1rem; font-size: 0.7rem; color: #cbd5e1;">For educational and research purposes only. Not for clinical use.</p>
+    <p style="margin-top: 1rem; font-size: 0.7rem; color: #cbd5e1;">For educational and research purposes only. Not intended for clinical use. Not FDA approved. Not a substitute for professional medical advice. The developer assumes no liability for any use of this system.</p>
 </div>
 
 <script>
 const API_BASE = window.location.origin;
 let lastQuery = '';
+let lastCondition = '';
+let isOverride = false;
 
-async function loadStats() {
-    try {
-        const r = await fetch(API_BASE + '/stats');
-        const d = await r.json();
-        document.getElementById('statCorpus').textContent = d.corpus_size.toLocaleString();
-        document.getElementById('statChunks').textContent = d.chunk_count.toLocaleString();
-    } catch(e) { console.error('Stats load failed:', e); }
+const CONDITIONS = ["Atelectasis","Cardiomegaly","Consolidation","Edema","Effusion","Emphysema","Fibrosis","Hernia","Infiltration","Mass","Nodule","Pleural Thickening","Pneumonia","Pneumothorax","Normal"];
+
+const CONDITION_WARNINGS = {
+    "Pneumonia": "Infection control: standard precautions. Consider isolation if TB not yet excluded.",
+    "Pneumothorax": "Urgent: assess for tension pneumothorax. May require immediate needle decompression.",
+    "Effusion": "Large effusions may cause respiratory compromise. Assess need for urgent thoracentesis.",
+    "Cardiomegaly": "Evaluate for acute decompensated heart failure. Monitor fluid balance.",
+    "Edema": "May indicate acute heart failure. Assess oxygen saturation and respiratory status.",
+    "Fibrosis": "Progressive condition. Assess oxygen requirements and functional capacity.",
+    "Mass": "Malignancy workup required. Urgent referral to pulmonology/oncology.",
+    "Nodule": "Follow Fleischner Society guidelines for nodule management based on size and risk.",
+    "Atelectasis": "Post-operative: incentive spirometry. Rule out obstructive cause if persistent.",
+    "Emphysema": "Assess COPD severity. Smoking cessation is the most effective intervention.",
+    "Infiltration": "Broad differential. Correlate with clinical presentation and labs.",
+    "Hernia": "Surgical consultation may be needed. Assess for incarceration/strangulation.",
+    "Pleural Thickening": "Consider asbestos exposure history. Monitor for mesothelioma risk.",
+    "Normal": "No acute findings. Consider clinical correlation if symptoms persist.",
+};
+
+function onConditionChange() {
+    const sel = document.getElementById('conditionSelect');
+    const info = document.getElementById('conditionInfo');
+    const overrideBadge = document.getElementById('overrideBadge');
+    const aiBadge = document.getElementById('aiBadge');
+
+    if (sel.value) {
+        sel.classList.add('active');
+        isOverride = true;
+        overrideBadge.style.display = 'inline';
+        aiBadge.style.display = 'none';
+        if (CONDITION_WARNINGS[sel.value]) {
+            info.className = 'condition-info warning';
+            info.textContent = CONDITION_WARNINGS[sel.value];
+        } else {
+            info.className = 'condition-info';
+            info.textContent = 'Retrieval focused on ' + sel.value + ' literature.';
+        }
+    } else {
+        sel.classList.remove('active');
+        isOverride = false;
+        overrideBadge.style.display = 'none';
+        aiBadge.style.display = 'inline';
+        info.className = 'condition-info';
+        info.textContent = 'Select a condition to focus retrieval on disease-specific literature, or leave on auto-detect.';
+    }
 }
 
-function setQuery(text) { document.getElementById('queryInput').value = text; }
+function setExample(query, condition) {
+    document.getElementById('queryInput').value = query;
+    document.getElementById('conditionSelect').value = condition;
+    onConditionChange();
+}
 
 function clearResults() {
     document.getElementById('queryInput').value = '';
+    document.getElementById('conditionSelect').value = '';
+    onConditionChange();
     document.getElementById('resultsSection').classList.remove('visible');
     document.getElementById('resultsContainer').innerHTML = '';
     document.getElementById('summaryContainer').innerHTML = '';
+    document.getElementById('conditionBanner').innerHTML = '';
     document.getElementById('generatePrompt').style.display = 'none';
     document.getElementById('statusBar').textContent = '';
 }
@@ -314,11 +327,7 @@ function getScoreClass(sim) {
     return 'score-low';
 }
 
-function escapeHtml(text) {
-    const d = document.createElement('div');
-    d.textContent = text;
-    return d.innerHTML;
-}
+function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
 
 function renderMarkdown(text) {
     return text
@@ -332,55 +341,64 @@ function renderMarkdown(text) {
         .replace(/\n/g, '<br>');
 }
 
+function showConditionBanner(condition) {
+    const banner = document.getElementById('conditionBanner');
+    if (!condition || condition === 'none') { banner.innerHTML = ''; return; }
+    const type = isOverride ? 'manual' : 'ai';
+    const label = isOverride ? 'Doctor selected' : 'Condition focus';
+    const warning = CONDITION_WARNINGS[condition] || '';
+    banner.innerHTML = `<div class="condition-banner ${type}"><span class="label">${label}: ${condition}</span>${warning ? ' — ' + warning : ''}</div>`;
+}
+
 async function runRetrieve() {
     const query = document.getElementById('queryInput').value.trim();
     if (!query) return;
+    const condition = document.getElementById('conditionSelect').value;
     lastQuery = query;
+    lastCondition = condition;
 
     const btn = document.getElementById('searchBtn');
     const status = document.getElementById('statusBar');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Searching...';
-    status.textContent = 'Querying medical literature...';
+    status.textContent = condition ? 'Searching ' + condition + ' literature...' : 'Querying medical literature...';
     document.getElementById('summaryContainer').innerHTML = '';
 
     try {
         const r = await fetch(API_BASE + '/retrieve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query })
+            body: JSON.stringify({ query, condition })
         });
         if (!r.ok) throw new Error('Request failed: ' + r.status);
         const data = await r.json();
 
         document.getElementById('latencyBadge').textContent = Math.round(data.retrieval_latency_ms) + 'ms retrieval';
+        showConditionBanner(condition);
         renderChunks(data.chunks);
         document.getElementById('resultsSection').classList.add('visible');
         document.getElementById('generatePrompt').style.display = 'block';
-        status.textContent = `Found ${data.chunks.length} relevant chunks`;
-    } catch(e) {
-        status.textContent = 'Error: ' + e.message;
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'Search';
-    }
+        document.getElementById('generateBtn2').style.display = 'inline-block';
+        status.textContent = 'Found ' + data.chunks.length + ' relevant chunks' + (condition ? ' for ' + condition : '');
+    } catch(e) { status.textContent = 'Error: ' + e.message; }
+    finally { btn.disabled = false; btn.innerHTML = 'Search'; }
 }
 
 async function runFullQuery() {
     const query = lastQuery || document.getElementById('queryInput').value.trim();
+    const condition = lastCondition || document.getElementById('conditionSelect').value;
     if (!query) return;
 
-    const btn2 = document.getElementById('generateBtn2');
+    const btns = [document.getElementById('generateBtn2'), document.getElementById('generateBtn3')];
     const status = document.getElementById('statusBar');
-    btn2.disabled = true;
-    btn2.innerHTML = '<span class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:white;"></span>Generating summary...';
+    btns.forEach(b => { if(b) { b.disabled = true; b.innerHTML = '<span class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:white;"></span>Generating...'; }});
     status.textContent = 'Generating clinical summary...';
 
     try {
         const r = await fetch(API_BASE + '/query', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, cnn_prediction: 'unknown', confidence: 0.0 })
+            body: JSON.stringify({ query, cnn_prediction: condition || 'unknown', confidence: condition ? 0.85 : 0.0, condition })
         });
         if (!r.ok) throw new Error('Request failed: ' + r.status);
         const data = await r.json();
@@ -388,27 +406,20 @@ async function runFullQuery() {
         document.getElementById('summaryContainer').innerHTML = `
             <div class="summary-card">
                 <div class="summary-header">
-                    <h3>Clinical Summary</h3>
-                    <span class="summary-timing">
-                        retrieval ${Math.round(data.retrieval_latency_ms)}ms +
-                        generation ${Math.round(data.generation_latency_ms)}ms =
-                        total ${Math.round(data.total_latency_ms)}ms
-                    </span>
+                    <h3>Clinical Summary${data.condition && data.condition !== 'none' ? ' — ' + data.condition : ''}</h3>
+                    <span class="summary-timing">retrieval ${Math.round(data.retrieval_latency_ms)}ms + generation ${Math.round(data.generation_latency_ms)}ms</span>
                 </div>
                 <div class="summary-content"><p>${renderMarkdown(data.generated_response)}</p></div>
-            </div>
-        `;
+            </div>`;
 
         document.getElementById('generatePrompt').style.display = 'none';
+        document.getElementById('generateBtn2').style.display = 'none';
         document.getElementById('latencyBadge').textContent = Math.round(data.total_latency_ms) + 'ms total';
+        showConditionBanner(data.condition);
         renderChunks(data.chunks);
         status.textContent = 'Clinical summary generated';
-    } catch(e) {
-        status.textContent = 'Error: ' + e.message;
-    } finally {
-        btn2.disabled = false;
-        btn2.innerHTML = 'Generate Clinical Summary';
-    }
+    } catch(e) { status.textContent = 'Error: ' + e.message; }
+    finally { btns.forEach(b => { if(b) { b.disabled = false; b.innerHTML = 'Generate Clinical Summary'; }}); }
 }
 
 function renderChunks(chunks) {
@@ -419,8 +430,22 @@ function renderChunks(chunks) {
                 <span class="chunk-score ${getScoreClass(chunk.similarity)}">${chunk.similarity.toFixed(3)}</span>
             </div>
             <div class="chunk-text">${escapeHtml(chunk.chunk_text)}</div>
-        </div>
-    `).join('');
+        </div>`).join('');
+}
+
+async function loadStats() {
+    try {
+        const r = await fetch(API_BASE + '/stats');
+        const d = await r.json();
+        document.getElementById('statCorpus').textContent = d.corpus_size.toLocaleString();
+        document.getElementById('statChunks').textContent = d.chunk_count.toLocaleString();
+    } catch(e) { console.error(e); }
+}
+
+function renderConditionTags() {
+    document.getElementById('conditionTags').innerHTML = CONDITIONS.map(c =>
+        '<span class="tech-tag" style="cursor:pointer;" onclick="setExample(\'\',\'' + c + '\')">' + c + '</span>'
+    ).join('');
 }
 
 document.getElementById('queryInput').addEventListener('keydown', function(e) {
@@ -428,6 +453,7 @@ document.getElementById('queryInput').addEventListener('keydown', function(e) {
 });
 
 loadStats();
+renderConditionTags();
 </script>
 </body>
 </html>

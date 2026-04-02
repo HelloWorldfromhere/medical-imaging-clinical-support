@@ -4,27 +4,55 @@ Pydantic models for API request and response schemas.
 
 from pydantic import BaseModel, Field
 
+# 14 ChestX-ray14 conditions + normal
+CONDITIONS = [
+    "Atelectasis",
+    "Cardiomegaly",
+    "Consolidation",
+    "Edema",
+    "Effusion",
+    "Emphysema",
+    "Fibrosis",
+    "Hernia",
+    "Infiltration",
+    "Mass",
+    "Nodule",
+    "Pleural Thickening",
+    "Pneumonia",
+    "Pneumothorax",
+    "Normal",
+]
 
-# ── Request models ──────────────────────────────────────────────────────────
+# Condition-specific query augmentation for better retrieval
+CONDITION_CONTEXT = {
+    "Atelectasis": "atelectasis lung collapse volume loss chest radiograph management",
+    "Cardiomegaly": "cardiomegaly enlarged heart cardiothoracic ratio heart failure echocardiography",
+    "Consolidation": "pulmonary consolidation lobar pneumonia air bronchograms chest X-ray",
+    "Edema": "pulmonary edema fluid overload heart failure diuretics chest radiograph",
+    "Effusion": "pleural effusion thoracentesis Light criteria transudative exudative",
+    "Emphysema": "emphysema COPD hyperinflation bullae pulmonary function",
+    "Fibrosis": "pulmonary fibrosis interstitial lung disease honeycombing HRCT restrictive",
+    "Hernia": "diaphragmatic hernia hiatal hernia chest radiograph surgical repair",
+    "Infiltration": "pulmonary infiltrate differential diagnosis infection inflammation chest imaging",
+    "Mass": "pulmonary mass lung cancer solitary nodule malignancy biopsy staging",
+    "Nodule": "pulmonary nodule lung cancer screening calcification malignancy risk Fleischner",
+    "Pleural Thickening": "pleural thickening asbestos mesothelioma chronic pleuritis imaging",
+    "Pneumonia": "pneumonia community-acquired empiric antibiotics CURB-65 chest radiograph treatment",
+    "Pneumothorax": "pneumothorax chest tube tension pneumothorax management visceral pleural line",
+    "Normal": "normal chest radiograph anatomy cardiac silhouette costophrenic angles",
+}
+
 
 class RetrieveRequest(BaseModel):
-    """Request to retrieve relevant medical literature chunks."""
-    query: str = Field(
-        ...,
-        description="Clinical query describing patient presentation or medical question",
-        min_length=5,
-        json_schema_extra={
-            "examples": [
-                "65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD"
-            ]
-        },
-    )
+    query: str = Field(..., description="Clinical query", min_length=5)
+    condition: str = Field(default="", description="Selected condition to focus retrieval")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD"
+                    "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD",
+                    "condition": "Pneumonia",
                 }
             ]
         }
@@ -32,68 +60,53 @@ class RetrieveRequest(BaseModel):
 
 
 class QueryRequest(BaseModel):
-    """Request for full RAG pipeline: retrieve + generate."""
-    query: str = Field(
-        ...,
-        description="Clinical query describing patient presentation",
-        min_length=5,
-    )
-    cnn_prediction: str = Field(
-        default="unknown",
-        description="CNN classification result (e.g., 'pneumonia', 'normal')",
-    )
-    confidence: float = Field(
-        default=0.0,
-        description="CNN prediction confidence (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0,
-    )
+    query: str = Field(..., description="Clinical query", min_length=5)
+    cnn_prediction: str = Field(default="unknown", description="CNN classification or doctor-selected condition")
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    condition: str = Field(default="", description="Selected condition to focus retrieval")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
                     "query": "65-year-old male with bilateral lobar consolidation, history of COPD",
-                    "cnn_prediction": "pneumonia",
+                    "cnn_prediction": "Pneumonia",
                     "confidence": 0.87,
+                    "condition": "Pneumonia",
                 }
             ]
         }
     }
 
 
-# ── Response models ─────────────────────────────────────────────────────────
-
 class RetrievedChunk(BaseModel):
-    """A single retrieved document chunk with metadata."""
-    chunk_text: str = Field(description="Text content of the retrieved chunk")
-    similarity: float = Field(description="Cosine similarity score to query")
-    doc_id: str = Field(description="Source document identifier")
-    chunk_index: int = Field(description="Chunk position within the source document")
+    chunk_text: str
+    similarity: float
+    doc_id: str
+    chunk_index: int
 
 
 class RetrieveResponse(BaseModel):
-    """Response from the /retrieve endpoint."""
     query: str
+    condition: str
     chunks: list[RetrievedChunk]
-    retrieval_latency_ms: float = Field(description="Time spent on retrieval in milliseconds")
-    total_latency_ms: float = Field(description="Total request time in milliseconds")
+    retrieval_latency_ms: float
+    total_latency_ms: float
 
 
 class QueryResponse(BaseModel):
-    """Response from the /query endpoint (full RAG pipeline)."""
     query: str
     cnn_prediction: str
     confidence: float
+    condition: str
     chunks: list[RetrievedChunk]
-    generated_response: str = Field(description="LLM-generated clinical summary")
+    generated_response: str
     retrieval_latency_ms: float
     generation_latency_ms: float
     total_latency_ms: float
 
 
 class HealthResponse(BaseModel):
-    """Response from the /health endpoint."""
     status: str
     corpus_loaded: bool
     corpus_size: int
@@ -101,9 +114,9 @@ class HealthResponse(BaseModel):
 
 
 class StatsResponse(BaseModel):
-    """Response from the /stats endpoint."""
     corpus_size: int
     chunk_count: int
     embedding_model: str
     chunking_strategy: str
     retrieval_k: int
+    conditions: list[str]
