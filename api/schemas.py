@@ -1,29 +1,14 @@
-"""
-Pydantic models for API request and response schemas.
-"""
+"""Pydantic models for API request and response schemas."""
 
 from pydantic import BaseModel, Field
 
-# 14 ChestX-ray14 conditions + normal
 CONDITIONS = [
-    "Atelectasis",
-    "Cardiomegaly",
-    "Consolidation",
-    "Edema",
-    "Effusion",
-    "Emphysema",
-    "Fibrosis",
-    "Hernia",
-    "Infiltration",
-    "Mass",
-    "Nodule",
-    "Pleural Thickening",
-    "Pneumonia",
-    "Pneumothorax",
-    "Normal",
+    "Atelectasis", "Cardiomegaly", "Consolidation", "Edema",
+    "Effusion", "Emphysema", "Fibrosis", "Hernia",
+    "Infiltration", "Mass", "Nodule", "Pleural Thickening",
+    "Pneumonia", "Pneumothorax", "Normal",
 ]
 
-# Condition-specific query augmentation for better retrieval
 CONDITION_CONTEXT = {
     "Atelectasis": "atelectasis lung collapse volume loss chest radiograph management",
     "Cardiomegaly": "cardiomegaly enlarged heart cardiothoracic ratio heart failure echocardiography",
@@ -44,40 +29,14 @@ CONDITION_CONTEXT = {
 
 
 class RetrieveRequest(BaseModel):
-    query: str = Field(..., description="Clinical query", min_length=5)
-    condition: str = Field(default="", description="Selected condition to focus retrieval")
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "query": "65-year-old male with bilateral lobar consolidation on chest X-ray, history of COPD",
-                    "condition": "Pneumonia",
-                }
-            ]
-        }
-    }
-
+    query: str = Field(..., min_length=5)
+    condition: str = Field(default="")
 
 class QueryRequest(BaseModel):
-    query: str = Field(..., description="Clinical query", min_length=5)
-    cnn_prediction: str = Field(default="unknown", description="CNN classification or doctor-selected condition")
+    query: str = Field(..., min_length=5)
+    cnn_prediction: str = Field(default="unknown")
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
-    condition: str = Field(default="", description="Selected condition to focus retrieval")
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "query": "65-year-old male with bilateral lobar consolidation, history of COPD",
-                    "cnn_prediction": "Pneumonia",
-                    "confidence": 0.87,
-                    "condition": "Pneumonia",
-                }
-            ]
-        }
-    }
-
+    condition: str = Field(default="")
 
 class RetrievedChunk(BaseModel):
     chunk_text: str
@@ -85,14 +44,12 @@ class RetrievedChunk(BaseModel):
     doc_id: str
     chunk_index: int
 
-
 class RetrieveResponse(BaseModel):
     query: str
     condition: str
     chunks: list[RetrievedChunk]
     retrieval_latency_ms: float
     total_latency_ms: float
-
 
 class QueryResponse(BaseModel):
     query: str
@@ -105,13 +62,34 @@ class QueryResponse(BaseModel):
     generation_latency_ms: float
     total_latency_ms: float
 
+class ConditionPrediction(BaseModel):
+    condition: str
+    probability: float
+    detected: bool
+
+class PredictResponse(BaseModel):
+    predictions: list[ConditionPrediction]
+    model_loaded: bool
+    inference_latency_ms: float
+
+class AnalyzeResponse(BaseModel):
+    predictions: list[ConditionPrediction]
+    detected_conditions: list[str]
+    query: str
+    chunks: list[RetrievedChunk]
+    generated_response: str
+    model_loaded: bool
+    inference_latency_ms: float
+    retrieval_latency_ms: float
+    generation_latency_ms: float
+    total_latency_ms: float
 
 class HealthResponse(BaseModel):
     status: str
     corpus_loaded: bool
     corpus_size: int
     chunk_count: int
-
+    cnn_model_loaded: bool
 
 class StatsResponse(BaseModel):
     corpus_size: int
@@ -120,3 +98,4 @@ class StatsResponse(BaseModel):
     chunking_strategy: str
     retrieval_k: int
     conditions: list[str]
+    cnn_model_loaded: bool
