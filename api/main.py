@@ -2,11 +2,12 @@
 FastAPI Backend — Medical Imaging RAG Clinical Decision Support
 
 Endpoints:
-    GET  /            — Landing page with interactive demo
-    GET  /health      — Service health check
-    POST /retrieve    — Retrieve relevant chunks for a query
-    POST /query       — Full RAG pipeline: retrieve + LLM summary
-    GET  /stats       — Corpus and index statistics
+    GET  /              — Landing page with interactive demo
+    GET  /health        — Service health check
+    GET  /stats         — Corpus and index statistics
+    GET  /conditions    — List of supported conditions
+    POST /retrieve      — Retrieve relevant chunks (condition-focused)
+    POST /query         — Full RAG pipeline: retrieve + LLM summary
 """
 
 import os
@@ -28,6 +29,8 @@ from api.schemas import (
     RetrievedChunk,
     HealthResponse,
     StatsResponse,
+    CONDITIONS,
+    CONDITION_CONTEXT,
 )
 from api.llm_provider import generate_clinical_summary
 from rag.retrieval_pipeline import RAGPipeline
@@ -68,6 +71,14 @@ def load_pipeline():
     logger.info(f"Pipeline ready: {corpus_size} docs, {chunk_count} chunks, {elapsed:.1f}s")
 
 
+def build_focused_query(query: str, condition: str) -> str:
+    """Augment the user query with condition-specific terms for better retrieval."""
+    if condition and condition in CONDITION_CONTEXT:
+        context = CONDITION_CONTEXT[condition]
+        return f"{query} {context}"
+    return query
+
+
 _landing_html = ""
 _html_path = Path(__file__).parent / "index.html"
 if _html_path.exists():
@@ -83,8 +94,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Medical Imaging RAG Clinical Decision Support",
-    description="RAG-based clinical decision support with hybrid BM25 + vector retrieval and LLM-generated summaries.",
-    version="1.1.0",
+    description="RAG-based clinical decision support with condition-focused hybrid retrieval and LLM-generated summaries.",
+    version="1.2.0",
     lifespan=lifespan,
 )
 
@@ -112,16 +123,28 @@ async def health_check():
     )
 
 
+@app.get("/conditions")
+async def list_conditions():
+    """List all supported conditions with retrieval context."""
+    return {"conditions": CONDITIONS}
+
+
 @app.post("/retrieve", response_model=RetrieveResponse)
 async def retrieve(request: RetrieveRequest):
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not initialized")
+
     start = time.perf_counter()
+
+    focused_query = build_focused_query(request.query, request.condition)
+    logger.info(f"Retrieval: condition={request.condition or 'none'}, query={request.query[:60]}")
+
     try:
-        docs, retrieval_ms = pipeline.retrieve(request.query)
+        docs, retrieval_ms = pipeline.retrieve(focused_query)
     except Exception as e:
         logger.error(f"Retrieval error: {e}")
         raise HTTPException(status_code=500, detail=f"Retrieval failed: {str(e)}")
+
     total_ms = (time.perf_counter() - start) * 1000
     chunks = [
         RetrievedChunk(
@@ -132,8 +155,10 @@ async def retrieve(request: RetrieveRequest):
         )
         for doc in docs
     ]
+
     return RetrieveResponse(
         query=request.query,
+        condition=request.condition or "none",
         chunks=chunks,
         retrieval_latency_ms=round(retrieval_ms, 2),
         total_latency_ms=round(total_ms, 2),
@@ -147,8 +172,12 @@ async def query(request: QueryRequest):
 
     total_start = time.perf_counter()
 
+    condition = request.condition or request.cnn_prediction
+    focused_query = build_focused_query(request.query, condition)
+    logger.info(f"Full query: condition={condition}, query={request.query[:60]}")
+
     try:
-        docs, retrieval_ms = pipeline.retrieve(request.query)
+        docs, retrieval_ms = pipeline.retrieve(focused_query)
     except Exception as e:
         logger.error(f"Retrieval error: {e}")
         raise HTTPException(status_code=500, detail=f"Retrieval failed: {str(e)}")
@@ -171,7 +200,7 @@ async def query(request: QueryRequest):
         ]
         summary = generate_clinical_summary(
             query=request.query,
-            cnn_prediction=request.cnn_prediction,
+            cnn_prediction=condition if condition != "unknown" else "not specified",
             confidence=request.confidence,
             chunks=chunk_dicts,
         )
@@ -186,6 +215,7 @@ async def query(request: QueryRequest):
         query=request.query,
         cnn_prediction=request.cnn_prediction,
         confidence=request.confidence,
+        condition=condition or "none",
         chunks=chunks,
         generated_response=summary,
         retrieval_latency_ms=round(retrieval_ms, 2),
@@ -204,4 +234,5 @@ async def stats():
         embedding_model=pipeline.model_key,
         chunking_strategy=pipeline.strategy_key,
         retrieval_k=pipeline.k,
+        conditions=CONDITIONS,
     )
