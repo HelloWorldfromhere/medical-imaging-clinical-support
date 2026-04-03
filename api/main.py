@@ -109,12 +109,13 @@ async def predict(file: UploadFile = File(...)):
     start = time.perf_counter()
     image_bytes = await file.read()
 
-    predictions = predict_conditions(image_bytes)
+    result = predict_conditions(image_bytes)
     latency = (time.perf_counter() - start) * 1000
 
     return PredictResponse(
-        predictions=[ConditionPrediction(**p) for p in predictions],
-        model_loaded=is_model_loaded(),
+        predictions=[ConditionPrediction(**p) for p in result["predictions"]],
+        model_loaded=result["model_loaded"],
+        needs_manual_selection=result.get("needs_manual_selection", False),
         inference_latency_ms=round(latency, 2),
     )
 
@@ -136,7 +137,8 @@ async def analyze(
     # Step 1: CNN prediction
     image_bytes = await file.read()
     cnn_start = time.perf_counter()
-    predictions = predict_conditions(image_bytes)
+    cnn_result = predict_conditions(image_bytes)
+    predictions = cnn_result["predictions"]
     cnn_ms = (time.perf_counter() - cnn_start) * 1000
 
     detected = [p for p in predictions if p["detected"]]

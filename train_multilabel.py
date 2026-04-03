@@ -301,7 +301,7 @@ def train(args):
     if args.resume:
         ckpt_path = os.path.join(CONFIG["checkpoint_dir"], "efficientnet_b3_multilabel_best.pth")
         if os.path.exists(ckpt_path):
-            ckpt = torch.load(ckpt_path, map_location=device)
+            ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
             model.load_state_dict(ckpt["model_state_dict"])
             optimizer.load_state_dict(ckpt["optimizer_state_dict"])
             start_epoch = ckpt.get("epoch", 0) + 1
@@ -368,7 +368,7 @@ def train(args):
 
     ckpt = torch.load(
         os.path.join(CONFIG["checkpoint_dir"], "efficientnet_b3_multilabel_best.pth"),
-        map_location=device)
+        map_location=device, weights_only=False)
     model.load_state_dict(ckpt["model_state_dict"])
 
     test_loss, test_preds, test_labels = validate(model, test_loader, criterion, device, 0)

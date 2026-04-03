@@ -68,6 +68,7 @@ class ConditionPrediction(BaseModel):
     detected: bool
 
 class PredictResponse(BaseModel):
+    needs_manual_selection: bool = False
     predictions: list[ConditionPrediction]
     model_loaded: bool
     inference_latency_ms: float

@@ -1,16 +1,23 @@
 """
 CNN Inference Module — ChestX-ray14 Multi-Label Prediction
+==========================================================
 Loads the trained EfficientNet-B3 checkpoint and runs inference on uploaded X-rays.
 Falls back to a placeholder if the model isn't trained yet.
 
+Features:
+- Per-class optimized thresholds (loaded from optimal_thresholds.json)
+- Confidence check: if no condition > MIN_CONFIDENCE, flags for manual selection
+- torch.load with weights_only=False for PyTorch 2.6+ compatibility
+
 Usage:
-    from api.cnn_inference import predict_conditions
+    from api.cnn_inference import predict_conditions, is_model_loaded
     results = predict_conditions(image_bytes)
-    # Returns: [{"condition": "Pneumonia", "probability": 0.87}, ...]
+    # Returns: [{"condition": "Pneumonia", "probability": 0.87, "detected": True}, ...]
 """
 
 import io
 import os
+import json
 import logging
 from pathlib import Path
 
@@ -22,6 +29,8 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
+# ── Conditions (display names use spaces) ───────────────────────────────────
+
 CONDITIONS = [
     "Atelectasis", "Cardiomegaly", "Consolidation", "Edema",
     "Effusion", "Emphysema", "Fibrosis", "Hernia",
@@ -29,13 +38,20 @@ CONDITIONS = [
     "Pneumonia", "Pneumothorax",
 ]
 
+# ── Paths ───────────────────────────────────────────────────────────────────
+
 CHECKPOINT_PATH = "models/checkpoints/efficientnet_b3_multilabel_best.pth"
+THRESHOLD_PATH = "models/checkpoints/optimal_thresholds.json"
 IMAGE_SIZE = 224
-THRESHOLD = 0.5
+DEFAULT_THRESHOLD = 0.5
+MIN_CONFIDENCE = 0.30  # If no condition exceeds this, suggest manual selection
+
+# ── Module state ────────────────────────────────────────────────────────────
 
 _model = None
 _device = None
 _model_loaded = False
+_thresholds = {}  # Per-class optimized thresholds
 
 _transform = transforms.Compose([
     transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
@@ -43,6 +59,8 @@ _transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
+
+# ── Model building ─────────────────────────────────────────────────────────
 
 def _build_model():
     """Build EfficientNet-B3 with 14-class multi-label head."""
@@ -55,16 +73,54 @@ def _build_model():
     return model
 
 
+def _load_thresholds():
+    """Load per-class optimized thresholds, fall back to defaults."""
+    global _thresholds
+
+    if os.path.exists(THRESHOLD_PATH):
+        try:
+            with open(THRESHOLD_PATH, "r") as f:
+                data = json.load(f)
+            raw_thresholds = data.get("thresholds", {})
+            # Map from underscore names (training) to space names (inference)
+            for condition in CONDITIONS:
+                underscore_name = condition.replace(" ", "_")
+                if condition in raw_thresholds:
+                    _thresholds[condition] = raw_thresholds[condition]
+                elif underscore_name in raw_thresholds:
+                    _thresholds[condition] = raw_thresholds[underscore_name]
+                else:
+                    _thresholds[condition] = DEFAULT_THRESHOLD
+            logger.info(f"Loaded per-class thresholds from {THRESHOLD_PATH}")
+            logger.info(f"  Method: {data.get('method', 'unknown')}")
+            logger.info(f"  Mean F1 improvement: {data.get('mean_f1_default', 0):.3f} -> {data.get('mean_f1_optimized', 0):.3f}")
+        except Exception as e:
+            logger.warning(f"Failed to load thresholds: {e}, using defaults")
+            _thresholds = {c: DEFAULT_THRESHOLD for c in CONDITIONS}
+    else:
+        logger.info(f"No threshold file at {THRESHOLD_PATH}, using default {DEFAULT_THRESHOLD}")
+        _thresholds = {c: DEFAULT_THRESHOLD for c in CONDITIONS}
+
+
+# ── Startup ─────────────────────────────────────────────────────────────────
+
 def load_model():
     """Load the trained model checkpoint. Call once at startup."""
     global _model, _device, _model_loaded
 
     _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # Load thresholds first (works even without model)
+    _load_thresholds()
+
     if os.path.exists(CHECKPOINT_PATH):
         try:
             _model = _build_model()
-            checkpoint = torch.load(CHECKPOINT_PATH, map_location=_device)
+            checkpoint = torch.load(
+                CHECKPOINT_PATH,
+                map_location=_device,
+                weights_only=False  # PyTorch 2.6+ compatibility
+            )
             _model.load_state_dict(checkpoint["model_state_dict"])
             _model.to(_device)
             _model.eval()
@@ -81,12 +137,14 @@ def load_model():
         _model_loaded = False
 
 
-def is_model_loaded():
+def is_model_loaded() -> bool:
     """Check if the real CNN model is available."""
     return _model_loaded
 
 
-def predict_conditions(image_bytes: bytes) -> list[dict]:
+# ── Prediction ──────────────────────────────────────────────────────────────
+
+def predict_conditions(image_bytes: bytes) -> dict:
     """
     Predict conditions from a chest X-ray image.
 
@@ -94,19 +152,35 @@ def predict_conditions(image_bytes: bytes) -> list[dict]:
         image_bytes: Raw image bytes (PNG, JPEG, etc.)
 
     Returns:
-        List of dicts: [{"condition": str, "probability": float, "detected": bool}]
-        Sorted by probability (highest first).
+        dict with keys:
+            - predictions: list of dicts sorted by probability (highest first)
+            - model_loaded: bool
+            - needs_manual_selection: bool (True if no condition > MIN_CONFIDENCE)
+            - top_condition: str or None
     """
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
     if _model_loaded and _model is not None:
-        return _predict_real(image)
+        predictions = _predict_real(image)
     else:
-        return _predict_placeholder(image)
+        predictions = _predict_placeholder(image)
+
+    # Check if any condition exceeds minimum confidence
+    max_prob = max(p["probability"] for p in predictions) if predictions else 0
+    needs_manual = max_prob < MIN_CONFIDENCE and _model_loaded
+    top_condition = predictions[0]["condition"] if predictions and predictions[0]["probability"] >= MIN_CONFIDENCE else None
+
+    return {
+        "predictions": predictions,
+        "model_loaded": _model_loaded,
+        "needs_manual_selection": needs_manual,
+        "top_condition": top_condition,
+        "confidence_threshold": MIN_CONFIDENCE,
+    }
 
 
 def _predict_real(image: Image.Image) -> list[dict]:
-    """Run real model inference."""
+    """Run real model inference with per-class optimized thresholds."""
     input_tensor = _transform(image).unsqueeze(0).to(_device)
 
     with torch.no_grad():
@@ -115,10 +189,13 @@ def _predict_real(image: Image.Image) -> list[dict]:
 
     results = []
     for i, condition in enumerate(CONDITIONS):
+        threshold = _thresholds.get(condition, DEFAULT_THRESHOLD)
+        prob = float(probabilities[i])
         results.append({
             "condition": condition,
-            "probability": round(float(probabilities[i]), 4),
-            "detected": bool(probabilities[i] >= THRESHOLD),
+            "probability": round(prob, 4),
+            "detected": prob >= threshold,
+            "threshold": round(threshold, 3),
         })
 
     results.sort(key=lambda x: x["probability"], reverse=True)
@@ -126,15 +203,13 @@ def _predict_real(image: Image.Image) -> list[dict]:
 
 
 def _predict_placeholder(image: Image.Image) -> list[dict]:
-    """
-    Placeholder predictions when model isn't trained yet.
-    Returns all conditions with 0.0 probability and a flag.
-    """
+    """Placeholder predictions when model isn't trained yet."""
     results = []
     for condition in CONDITIONS:
         results.append({
             "condition": condition,
             "probability": 0.0,
             "detected": False,
+            "threshold": DEFAULT_THRESHOLD,
         })
     return results

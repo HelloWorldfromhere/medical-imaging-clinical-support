@@ -14,6 +14,8 @@ data/
 
 # Model checkpoints (not needed for retrieval API)
 models/
+!models/checkpoints/efficientnet_b3_multilabel_best.pth
+!models/checkpoints/optimal_thresholds.json
 
 # Logs
 logs/

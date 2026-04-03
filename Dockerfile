@@ -32,6 +32,8 @@ COPY api/ api/
 COPY rag/ rag/
 COPY evaluation/ evaluation/
 COPY pipelines/pubmed_cache/documents.json pipelines/pubmed_cache/documents.json
+COPY models/checkpoints/efficientnet_b3_multilabel_best.pth models/checkpoints/
+COPY models/checkpoints/optimal_thresholds.json models/checkpoints/
 
 # ── Expose port ─────────────────────────────────────────────
 # Cloud Run uses PORT env variable, default 8080

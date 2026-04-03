@@ -1,0 +1,101 @@
+{
+  "test_loss": 0.16713934951166726,
+  "test_mean_auc": 0.7993063619225215,
+  "test_mean_f1": 0.16140730608145826,
+  "per_class_auc": {
+    "Atelectasis": 0.7816064038339756,
+    "Cardiomegaly": 0.8761369841990022,
+    "Consolidation": 0.7891835406704806,
+    "Edema": 0.8833601345668629,
+    "Effusion": 0.8601324996599222,
+    "Emphysema": 0.9099304986294495,
+    "Fibrosis": 0.7659052449182255,
+    "Hernia": 0.7605560836501901,
+    "Infiltration": 0.7000212969147743,
+    "Mass": 0.790185375693394,
+    "Nodule": 0.7088348423876593,
+    "Pleural_Thickening": 0.8259782572111339,
+    "Pneumonia": 0.67204009373575,
+    "Pneumothorax": 0.8664178108444787
+  },
+  "per_class_f1": {
+    "Atelectasis": 0.22443890274314215,
+    "Cardiomegaly": 0.21526418786692758,
+    "Consolidation": 0.03389830508474576,
+    "Edema": 0.10650887573964497,
+    "Effusion": 0.4565587734241908,
+    "Emphysema": 0.34316353887399464,
+    "Fibrosis": 0.012658227848101266,
+    "Hernia": 0.09523809523809523,
+    "Infiltration": 0.1956521739130435,
+    "Mass": 0.22938144329896906,
+    "Nodule": 0.06832298136645963,
+    "Pleural_Thickening": 0.010610079575596816,
+    "Pneumonia": 0.0,
+    "Pneumothorax": 0.26800670016750416
+  },
+  "conditions": [
+    "Atelectasis",
+    "Cardiomegaly",
+    "Consolidation",
+    "Edema",
+    "Effusion",
+    "Emphysema",
+    "Fibrosis",
+    "Hernia",
+    "Infiltration",
+    "Mass",
+    "Nodule",
+    "Pleural_Thickening",
+    "Pneumonia",
+    "Pneumothorax"
+  ],
+  "config": {
+    "data_dir": "data/chestxray14",
+    "checkpoint_dir": "models/checkpoints",
+    "eval_dir": "evaluation/plots",
+    "results_dir": "evaluation",
+    "batch_size": 16,
+    "num_epochs": 15,
+    "learning_rate": 0.0001,
+    "weight_decay": 1e-05,
+    "image_size": 224,
+    "num_workers": 4,
+    "train_split": 0.8,
+    "val_split": 0.1,
+    "test_split": 0.1,
+    "patience": 5,
+    "min_delta": 0.001
+  },
+  "history": {
+    "train_loss": [
+      0.14872010590172502,
+      0.14742143257353524,
+      0.14568618664430932,
+      0.14397047104406824,
+      0.13969327099279855
+    ],
+    "val_loss": [
+      0.16343611095829674,
+      0.16264063422884076,
+      0.16591653253717248,
+      0.1673312704395722,
+      0.16888549357333643
+    ],
+    "train_auc": [
+      0.8515799188140413,
+      0.8554180636410823,
+      0.8603633352959641,
+      0.8659170103488903,
+      0.8775202693710406
+    ],
+    "val_auc": [
+      0.817848905531756,
+      0.8159210832825252,
+      0.8127003512500707,
+      0.8136892147361697,
+      0.8122314658825818
+    ]
+  },
+  "best_epoch": 9
+}
