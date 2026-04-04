@@ -305,6 +305,11 @@ function showPredictions(data){
     area.style.display='block';
     document.getElementById('cnnLatency').textContent=`(${Math.round(data.inference_latency_ms)}ms)`;
     const chips=document.getElementById('predictionChips');
+    if(data.needs_manual_selection){
+        chips.innerHTML='<span class="pred-chip" style="background:#f0f4f8;color:#64748b;border:1px dashed #94a3b8;cursor:default">No significant findings detected — select a condition manually if clinical suspicion warrants</span>';
+        document.getElementById('modelStatus').textContent='';
+        return;
+    }
     chips.innerHTML=data.predictions.filter(p=>p.probability>0.1||p.detected).map(p=>
         `<span class="pred-chip ${p.detected?'detected':''}" onclick="selectCondition('${p.condition}')" title="Click to focus retrieval on ${p.condition}">${p.condition} <span class="prob">${(p.probability*100).toFixed(0)}%</span></span>`
     ).join('');
