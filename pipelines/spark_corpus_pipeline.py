@@ -524,7 +524,7 @@ def run_spark_pipeline(docs_path: Path, partitions: int = 4, skip_embeddings: bo
         if not skip_embeddings:
             logger.info(f"  Embed time          : {embed_ms:>8.1f} ms")
             logger.info(f"  Write time          : {write_ms:>8.1f} ms")
-        logger.info(f"  ─────────────────────────────────")
+        logger.info("  ─────────────────────────────────")
         logger.info(f"  Total               : {total_ms:>8.1f} ms")
 
         return {
