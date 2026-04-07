@@ -95,7 +95,9 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 
-app.mount("/samples", StaticFiles(directory=str(Path(__file__).parent / "samples")), name="samples")
+_samples_dir = Path(__file__).parent / "samples"
+if _samples_dir.exists():
+    app.mount("/samples", StaticFiles(directory=str(_samples_dir)), name="samples")
 @app.get("/", response_class=HTMLResponse)
 async def landing_page():
     return _landing_html
