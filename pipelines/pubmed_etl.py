@@ -13,19 +13,20 @@
 # - All data is cited by PMID as required
 # =============================================================
 
-import psycopg2
 import logging
+import os
 import time
+
+import psycopg2
 from Bio import Entrez
 from dotenv import load_dotenv
-import os
 
 # =============================================================
 # CONFIGURATION — update your email below (required by PubMed)
 # =============================================================
 load_dotenv()
 
-ENTREZ_EMAIL = os.getenv("ENTREZ_EMAIL")  
+ENTREZ_EMAIL = os.getenv("ENTREZ_EMAIL")
 
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST", "localhost"),
@@ -247,7 +248,7 @@ def run_pipeline():
         total_skipped  += result["skipped"]
 
     logger.info("\n" + "=" * 60)
-    logger.info(f"Pipeline complete!")
+    logger.info("Pipeline complete!")
     logger.info(f"  Total inserted : {total_inserted}")
     logger.info(f"  Total skipped  : {total_skipped} (duplicates)")
     logger.info("=" * 60)

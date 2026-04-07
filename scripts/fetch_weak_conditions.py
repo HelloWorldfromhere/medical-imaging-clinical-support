@@ -1,8 +1,11 @@
 """Fetch PubMed articles for weak conditions identified in spot-check."""
 
-import json, time, os
-from dotenv import load_dotenv
+import json
+import os
+import time
+
 from Bio import Entrez
+from dotenv import load_dotenv
 
 load_dotenv()
 Entrez.email = os.getenv("ENTREZ_EMAIL")
@@ -71,7 +74,7 @@ for term in new_terms:
                 )
                 existing_ids.add(pid)
                 new_count += 1
-            except:
+            except Exception:
                 continue
         time.sleep(0.5)
     except Exception as e:

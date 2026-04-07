@@ -14,21 +14,21 @@ Usage:
     python -m evaluation.semantic_evaluator --compare        # Side-by-side with keyword metric
 """
 
-import json
-import time
-import logging
 import argparse
-from pathlib import Path
+import json
+import logging
+import time
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from rag.embedding_pipeline import (
-    EmbeddingPipeline,
-    EMBEDDING_MODELS,
     CHUNKING_STRATEGIES,
+    EMBEDDING_MODELS,
+    EmbeddingPipeline,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

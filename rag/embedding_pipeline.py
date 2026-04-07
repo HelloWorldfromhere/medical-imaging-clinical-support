@@ -11,23 +11,23 @@ Usage:
     python -m rag.embedding_pipeline --ingest      # Ingest best config into PostgreSQL
 """
 
-import json
-import time
-import hashlib
-import logging
 import argparse
-import numpy as np
-from pathlib import Path
+import hashlib
+import json
+import logging
+import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import psycopg2
+from langchain_text_splitters import (
+    CharacterTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
 from psycopg2.extras import execute_values
 from sentence_transformers import SentenceTransformer
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter,
-    CharacterTextSplitter,
-)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

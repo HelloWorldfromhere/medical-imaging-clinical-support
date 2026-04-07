@@ -11,13 +11,14 @@
 # =============================================================
 
 import matplotlib
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
-import numpy as np
-from sklearn.metrics import confusion_matrix, roc_curve, auc
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import auc, confusion_matrix, roc_curve
 
 sns.set_style("whitegrid")
 plt.rcParams['font.family'] = 'DejaVu Sans'

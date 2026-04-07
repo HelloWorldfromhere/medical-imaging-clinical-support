@@ -21,18 +21,18 @@ Usage:
 """
 
 import json
-import time
 import logging
-from pathlib import Path
+import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import psycopg2
-from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
-from rag.embedding_pipeline import EMBEDDING_MODELS, CHUNKING_STRATEGIES
+from rag.embedding_pipeline import EMBEDDING_MODELS
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

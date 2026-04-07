@@ -10,12 +10,13 @@ Run: python test_final_optimization.py
 """
 
 import json
-import numpy as np
 from collections import defaultdict
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+
+import numpy as np
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rank_bm25 import BM25Okapi
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ---------------------------------------------------------------------------
 # Load data
@@ -200,7 +201,7 @@ for model_name, model_id in models_to_test.items():
     chunk_embs = model.encode(chunks, show_progress_bar=False, batch_size=64)
 
     # Test 1: Different k without threshold (baseline)
-    print(f"\n  --- Hybrid retrieval, no threshold ---")
+    print("\n  --- Hybrid retrieval, no threshold ---")
     print(f"  {'k':>4}  {'Sem-Prec':>10}  {'Top-Cov':>10}")
     print(f"  {'-'*30}")
     for k in [5, 7, 10]:
@@ -213,7 +214,7 @@ for model_name, model_id in models_to_test.items():
         print(f"  {k:>4}  {np.mean(all_sp):>10.3f}  {np.mean(all_tc):>10.3f}")
 
     # Test 2: k=10 with different thresholds (retrieve broad, filter tight)
-    print(f"\n  --- Hybrid k=10, with relevance threshold ---")
+    print("\n  --- Hybrid k=10, with relevance threshold ---")
     print(f"  {'Threshold':>10}  {'Sem-Prec':>10}  {'Top-Cov':>10}  {'Avg Kept':>10}")
     print(f"  {'-'*45}")
     for threshold in [None, 0.20, 0.30, 0.35, 0.40, 0.45]:

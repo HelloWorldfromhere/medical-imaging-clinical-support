@@ -1,10 +1,11 @@
 """Quick chunking strategy comparison - run from project root."""
 
 import json
+
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Load docs
 docs = json.load(open("pipelines/pubmed_cache/documents.json", encoding="utf-8"))

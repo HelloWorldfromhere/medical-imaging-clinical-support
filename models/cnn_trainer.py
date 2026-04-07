@@ -4,20 +4,21 @@
 # Trains ResNet50 + EfficientNet-B3, compares, plots all results
 # =============================================================
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms, models
-from sklearn.metrics import classification_report
-import psycopg2
 import json
+import logging
 import os
 import sys
 import time
-import logging
-from tqdm import tqdm
+
+import psycopg2
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from dotenv import load_dotenv
+from sklearn.metrics import classification_report
+from torch.utils.data import DataLoader
+from torchvision import datasets, models, transforms
+from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from visualizer import generate_all_plots, plot_model_comparison
@@ -230,7 +231,7 @@ def train_model(model_name, model, train_loader, val_loader, test_loader, classe
             logger.info(f"  ✅ Best checkpoint saved → val_acc={val_acc:.2f}%")
 
     # Final test evaluation
-    logger.info(f"\n  Loading best checkpoint for test set evaluation...")
+    logger.info("\n  Loading best checkpoint for test set evaluation...")
     ckpt = torch.load(best_model_path, weights_only=False)
     model.load_state_dict(ckpt["model_state_dict"])
     test_loss, test_acc, test_preds, test_labels = evaluate(model, test_loader, criterion, device)
@@ -244,7 +245,7 @@ def train_model(model_name, model, train_loader, val_loader, test_loader, classe
     logger.info(f"  PNEUMONIA → P: {report['PNEUMONIA']['precision']:.3f} | R: {report['PNEUMONIA']['recall']:.3f} | F1: {report['PNEUMONIA']['f1-score']:.3f}")
 
     # Generate all evaluation plots
-    logger.info(f"\n  Generating evaluation plots...")
+    logger.info("\n  Generating evaluation plots...")
     generate_all_plots(
         model=model, model_name=model_name, history=history,
         y_true=test_labels, y_pred=test_preds, classes=classes,

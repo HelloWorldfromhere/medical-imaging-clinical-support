@@ -14,12 +14,13 @@ Run: python test_targeted_improvements.py
 """
 
 import json
-import numpy as np
 from collections import defaultdict
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+
+import numpy as np
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rank_bm25 import BM25Okapi
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ---------------------------------------------------------------------------
 # Setup
@@ -136,49 +137,49 @@ test_cases = [
 # Retrieval functions
 # ---------------------------------------------------------------------------
 
-def retrieve_weighted_hybrid(query, chunk_embs, model, bm25, 
+def retrieve_weighted_hybrid(query, chunk_embs, model, bm25,
                              initial_k=20, final_k=7,
                              bm25_weight=1.0, vec_weight=1.0,
                              rrf_k=60, min_vec_sim=None):
     """
     Weighted hybrid retrieval with optional vector similarity floor.
-    
+
     bm25_weight / vec_weight control the balance:
       - bm25_weight=2.0 gives keywords 2x importance (catches exact medical terms)
       - vec_weight=2.0 gives semantics 2x importance
-    
+
     min_vec_sim: if set, discard chunks with vector similarity below this threshold
     """
     q_emb = model.encode([query])
     vec_sims = cosine_similarity(q_emb, chunk_embs)[0]
-    
+
     # Vector top candidates
     vec_top = np.argsort(vec_sims)[-initial_k:][::-1]
-    
+
     # BM25 top candidates
     bm25_scores = bm25.get_scores(query.lower().split())
     bm25_top = np.argsort(bm25_scores)[-initial_k:][::-1]
-    
+
     # Weighted RRF fusion
     rrf = defaultdict(float)
     for rank, idx in enumerate(vec_top):
         rrf[idx] += vec_weight / (rrf_k + rank + 1)
     for rank, idx in enumerate(bm25_top):
         rrf[idx] += bm25_weight / (rrf_k + rank + 1)
-    
+
     # Sort by fused score
     candidates = sorted(rrf.items(), key=lambda x: x[1], reverse=True)
-    
+
     # Apply vector similarity floor if set
     if min_vec_sim is not None:
-        candidates = [(idx, score) for idx, score in candidates 
+        candidates = [(idx, score) for idx, score in candidates
                       if vec_sims[idx] >= min_vec_sim]
-    
+
     # Take top final_k
     top_indices = [idx for idx, _ in candidates[:final_k]]
     top_chunks_text = [chunks[i] for i in top_indices]
     top_vec_sims = [float(vec_sims[i]) for i in top_indices]
-    
+
     return top_chunks_text, top_vec_sims
 
 
@@ -194,7 +195,7 @@ def evaluate(retrieved_chunks, topics, eval_model):
     return round(sem_prec, 4), round(coverage, 4), len(retrieved_chunks)
 
 
-def run_config(model, chunk_embs, bm25_weight, vec_weight, 
+def run_config(model, chunk_embs, bm25_weight, vec_weight,
                initial_k, final_k, min_vec_sim, label):
     """Run a single configuration across all test cases."""
     all_sp, all_tc, all_kept = [], [], []
@@ -209,7 +210,7 @@ def run_config(model, chunk_embs, bm25_weight, vec_weight,
         all_sp.append(sp)
         all_tc.append(cov)
         all_kept.append(kept)
-    
+
     avg_sp = np.mean(all_sp)
     avg_tc = np.mean(all_tc)
     avg_kept = np.mean(all_kept)
