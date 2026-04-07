@@ -42,7 +42,8 @@ CHECKPOINT_PATH = "models/checkpoints/efficientnet_b3_multilabel_best.pth"
 THRESHOLD_PATH = "models/checkpoints/optimal_thresholds.json"
 IMAGE_SIZE = 224
 DEFAULT_THRESHOLD = 0.5
-MIN_CONFIDENCE = 0.30  # If no condition exceeds this, suggest manual selection
+MIN_CONFIDENCE = 0.15  # Global floor — catches non-X-ray images (dogs, selfies, etc.)
+
 
 # ── Module state ────────────────────────────────────────────────────────────
 
@@ -164,9 +165,12 @@ def predict_conditions(image_bytes: bytes) -> dict:
         predictions = _predict_placeholder(image)
 
     # Check if any condition exceeds minimum confidence
+    # 0.15 global floor catches non-X-ray images (dogs, selfies)
+    # Per-class thresholds (0.12-0.37) handle individual condition detection
     max_prob = max(p["probability"] for p in predictions) if predictions else 0
-    needs_manual = max_prob < MIN_CONFIDENCE and _model_loaded
-    top_condition = predictions[0]["condition"] if predictions and predictions[0]["probability"] >= MIN_CONFIDENCE else None
+    any_detected = any(p["detected"] for p in predictions)
+    needs_manual = (max_prob < MIN_CONFIDENCE or not any_detected) and _model_loaded
+    top_condition = predictions[0]["condition"] if predictions and predictions[0]["detected"] else None
 
     return {
         "predictions": predictions,

@@ -12,6 +12,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.cnn_inference import is_model_loaded, predict_conditions
 from api.cnn_inference import load_model as load_cnn
@@ -94,6 +95,7 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 
+app.mount("/samples", StaticFiles(directory=str(Path(__file__).parent / "samples")), name="samples")
 @app.get("/", response_class=HTMLResponse)
 async def landing_page():
     return _landing_html
