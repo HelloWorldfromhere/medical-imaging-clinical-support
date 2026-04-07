@@ -11,23 +11,22 @@ Usage:
     python -m evaluation.rag_evaluator --export-md        # Generate markdown tables
 """
 
-import json
-import time
-import logging
 import argparse
-from pathlib import Path
+import json
+import logging
+import time
 from dataclasses import dataclass
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from rag.embedding_pipeline import (
+    CHUNKING_STRATEGIES,
+    EMBEDDING_MODELS,
     EmbeddingPipeline,
     EmbeddingResult,
-    EMBEDDING_MODELS,
-    CHUNKING_STRATEGIES,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

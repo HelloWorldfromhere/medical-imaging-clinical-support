@@ -18,10 +18,10 @@ Usage:
     python -m pipelines.pubmed_fetch_json --verify        # Check existing data
 """
 
-import json
-import time
-import logging
 import argparse
+import json
+import logging
+import time
 from pathlib import Path
 
 from Bio import Entrez
@@ -105,7 +105,7 @@ def fetch_pubmed(search_term: str, max_results: int) -> list[dict]:
 
     pmids = search_results["IdList"]
     if not pmids:
-        logger.warning(f"  No results found")
+        logger.warning("  No results found")
         return []
 
     logger.info(f"  Found {len(pmids)} PMIDs")

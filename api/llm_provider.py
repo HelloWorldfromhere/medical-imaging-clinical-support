@@ -16,8 +16,9 @@ Usage:
     summary = generate_clinical_summary(query, cnn_prediction, confidence, chunks)
 """
 
-import os
 import logging
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()

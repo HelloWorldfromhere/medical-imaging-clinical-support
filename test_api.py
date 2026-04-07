@@ -8,8 +8,8 @@ Then in another terminal:
     python test_api.py
 """
 
+
 import requests
-import json
 
 BASE = "http://localhost:8000"
 

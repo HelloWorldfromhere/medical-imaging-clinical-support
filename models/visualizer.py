@@ -20,15 +20,16 @@
 # =============================================================
 
 import matplotlib
+
 matplotlib.use('Agg')  # WHY: Non-interactive backend for saving files
                        # without needing a display (works on servers too)
+import os
+
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
 import numpy as np
+import seaborn as sns
 import torch
 from sklearn.metrics import confusion_matrix
-import os
 
 # Set professional plot style
 # WHY seaborn style: Cleaner than matplotlib defaults,

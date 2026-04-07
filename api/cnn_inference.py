@@ -16,16 +16,14 @@ Usage:
 """
 
 import io
-import os
 import json
 import logging
-from pathlib import Path
+import os
 
-import numpy as np
 import torch
 import torch.nn as nn
-from torchvision import transforms, models
 from PIL import Image
+from torchvision import models, transforms
 
 logger = logging.getLogger(__name__)
 

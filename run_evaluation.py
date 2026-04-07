@@ -14,9 +14,9 @@ Output:
     evaluation/embedding_comparison.json  # Embedding timing data
 """
 
-import sys
 import argparse
 import logging
+import sys
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -31,10 +31,10 @@ def main():
 
     # Check dependencies
     try:
-        import sentence_transformers
-        import sklearn
-        import numpy
-        import langchain
+        import langchain  # noqa: F401
+        import numpy  # noqa: F401
+        import sentence_transformers  # noqa: F401
+        import sklearn  # noqa: F401
     except ImportError as e:
         print(f"\nMissing dependency: {e}")
         print("Install with: pip install sentence-transformers scikit-learn numpy langchain langchain-text-splitters")
@@ -61,7 +61,7 @@ def main():
     print("=" * 60)
     print(f"Models:     {models or 'ALL (minilm, biobert, pubmedbert)'}")
     print(f"Strategies: {strategies or 'ALL (fixed_512, recursive_paragraph, sentence_based)'}")
-    print(f"Test cases: 20 clinical scenarios")
+    print("Test cases: 20 clinical scenarios")
     print("=" * 60 + "\n")
 
     evaluator.run_full_evaluation(models=models, strategies=strategies)

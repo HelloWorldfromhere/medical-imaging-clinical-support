@@ -12,11 +12,12 @@ Run from project root:
 
 import json
 import time
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from sentence_transformers import CrossEncoder, SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer, CrossEncoder
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
 
 # Try to import BM25 - install if missing
 try:

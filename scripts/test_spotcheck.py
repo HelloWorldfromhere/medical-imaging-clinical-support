@@ -1,12 +1,13 @@
 """Spot-check: inspect actual chunks for TB query + new unseen PE query."""
 
 import json
-import numpy as np
 from collections import defaultdict
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+
+import numpy as np
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rank_bm25 import BM25Okapi
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 docs = json.load(open("pipelines/pubmed_cache/documents.json", encoding="utf-8"))
 splitter = RecursiveCharacterTextSplitter(

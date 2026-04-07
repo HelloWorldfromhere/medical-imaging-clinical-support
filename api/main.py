@@ -3,24 +3,33 @@ FastAPI Backend — Medical Imaging RAG Clinical Decision Support
 Full pipeline: Image Upload → CNN Prediction → RAG Retrieval → LLM Summary
 """
 
-import os
 import json
-import time
 import logging
-from pathlib import Path
+import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from api.schemas import (
-    QueryRequest, QueryResponse, RetrieveRequest, RetrieveResponse,
-    RetrievedChunk, HealthResponse, StatsResponse, PredictResponse,
-    AnalyzeResponse, ConditionPrediction, CONDITIONS, CONDITION_CONTEXT,
-)
+from api.cnn_inference import is_model_loaded, predict_conditions
+from api.cnn_inference import load_model as load_cnn
 from api.llm_provider import generate_clinical_summary
-from api.cnn_inference import load_model as load_cnn, predict_conditions, is_model_loaded
+from api.schemas import (
+    CONDITION_CONTEXT,
+    CONDITIONS,
+    AnalyzeResponse,
+    ConditionPrediction,
+    HealthResponse,
+    PredictResponse,
+    QueryRequest,
+    QueryResponse,
+    RetrievedChunk,
+    RetrieveRequest,
+    RetrieveResponse,
+    StatsResponse,
+)
 from rag.retrieval_pipeline import RAGPipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -157,7 +166,6 @@ async def analyze(
     focused_query = f"{query} {condition_terms}"
 
     # Step 3: RAG retrieval
-    ret_start = time.perf_counter()
     try:
         docs, retrieval_ms = pipeline.retrieve(focused_query)
     except Exception as e:
