@@ -20,9 +20,9 @@
 9. [RAG System Design — Phase 3](#9-rag-system-design--phase-3)
 10. [Full Pipeline Architecture](#10-full-pipeline-architecture)
 11. [Deployment Architecture — Phase 4](#11-deployment-architecture--phase-4)
-12. [Key Learnings & Trade-offs](#12-key-learnings--trade-offs)
-
----
+12. [Testing & CI/CD Pipeline](#12-testing--cicd-pipeline)
+13. [Spark Corpus Scaling Pipeline](#13-spark-corpus-scaling-pipeline)
+14. [Key Learnings & Trade-offs](#14-key-learnings--trade-offs)
 
 ## 1. Project Phases
 
@@ -355,7 +355,126 @@ Running with `min-instances=1` costs approximately $50-70/month for idle time. W
 
 ---
 
-## 12. Key Learnings & Trade-offs
+## 12. Testing & CI/CD Pipeline
+
+### Automated Testing
+
+**Framework:** pytest with FastAPI TestClient
+**Tests:** 16 endpoint tests covering all 7 API routes
+
+| Test Category | Tests | What It Validates |
+|---------------|-------|-------------------|
+| GET /health | 1 | Corpus loaded, CNN model status, chunk count |
+| GET /stats | 1 | Embedding model, retrieval config, condition count |
+| GET /conditions | 1 | All 15 conditions returned (14 pathologies + Normal) |
+| GET / | 1 | Landing page returns HTML |
+| POST /retrieve | 4 | Valid queries, condition augmentation, validation rejection |
+| POST /query | 3 | Full RAG pipeline, defaults, confidence validation |
+| POST /predict | 3 | Image upload, non-image rejection, missing file handling |
+| POST /analyze | 2 | Full pipeline (CNN → RAG → LLM), query context passthrough |
+
+**Mocking strategy:** All heavy dependencies (RAG pipeline, CNN model, LLM provider) are replaced with lightweight mock objects via `unittest.mock.patch`. Tests run in ~6 seconds without a database, GPU, or loaded corpus. This isolates API contract testing from model quality testing (which is handled by the evaluation suite in `evaluation/`).
+
+### CI/CD Pipeline
+
+**Platform:** GitHub Actions
+**Trigger:** Every push to `main` and every pull request targeting `main`
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| Lint | ruff | Catches style issues, unused imports, formatting errors |
+| Unit tests | pytest | Validates all API endpoints respond correctly |
+| Spark pipeline | PySpark scale test | Verifies corpus processing pipeline at 1x–50x scale |
+
+**Environment:** Ubuntu + Python 3.11 + Java 17 (Temurin). PySpark requires JVM; Java is provisioned via `actions/setup-java`.
+
+| Decision | Alternative | Rationale |
+|----------|-------------|-----------|
+| GitHub Actions over Jenkins | Jenkins requires self-hosted server | Zero infrastructure, free for public repos |
+| ruff over flake8 | flake8 is slower, less comprehensive | ruff is 10–100x faster, handles import sorting |
+| Mocked tests over live integration | Live tests need DB + model | Fast CI (<30s), no secrets needed |
+
+---
+
+## 13. Spark Corpus Scaling Pipeline
+
+### Motivation
+
+The sequential ETL pipeline (load → chunk → embed → store) processes documents one at a time. At 775 documents this takes seconds, but corpus growth to 10K–100K documents would create a bottleneck. Apache Spark enables parallel processing across partitions, scaling linearly with available compute.
+
+### Pipeline Architecture
+
+```
+JSON corpus (775+ docs)
+        |
+        v
++-------------------------+
+|  Stage 1: Ingest        |  Load JSON -> Spark DataFrame
+|  createDataFrame()      |  with explicit StructType schema
++--------+----------------+
+         |
+         v
++-------------------------+
+|  Stage 2: Clean         |  Spark SQL: trim, filter,
+|  Column operations      |  coalesce, length validation
++--------+----------------+
+         |
+         v
++-------------------------+
+|  Stage 3: Chunk         |  UDF + posexplode
+|  RecursiveCharText      |  (800 char, 80 overlap)
+|  Splitter               |  Paragraph-aware boundaries
++--------+----------------+
+         |
+         v
++-------------------------+
+|  Stage 4: Deduplicate   |  dropDuplicates(content_hash)
+|  MD5 content hashing    |  Removes cross-document duplicates
++--------+----------------+
+         |
+         v
++-------------------------+
+|  Stage 5: Embed         |  mapPartitions -- model loaded
+|  MPNet (768-dim)        |  ONCE per partition, batch encode
+|  Batched inference      |  (production ML inference pattern)
++--------+----------------+
+         |
+         v
++-------------------------+
+|  Stage 6: Write         |  Parquet output (columnar,
+|  Parquet format         |  compressed, schema-preserving)
++-------------------------+
+```
+
+### Key Design Decisions
+
+| Decision | Alternative | Rationale |
+|----------|-------------|-----------|
+| `createDataFrame()` over `read.json()` | Spark JSON reader | Our corpus is a JSON array, not JSON Lines; Spark expects one object per line |
+| UDF + `posexplode` for chunking | `mapPartitions` | UDF integrates with DataFrame API; splitter is lightweight (no model to load) |
+| `mapPartitions` for embedding | UDF | Model loaded once per partition (~500MB x 4 partitions) vs once per row (thousands of loads) |
+| Parquet output over JSON | JSON, CSV | Columnar, compressed, schema-preserving -- industry standard for data pipelines |
+| MD5 content hash dedup | Exact text matching | Hash comparison is O(1) per row; scales to millions of chunks via Spark shuffle |
+
+### Scale Test Results
+
+Benchmarked on GitHub Actions CI (Ubuntu, 2 vCPU, Python 3.11, Java 17):
+
+| Scale | Documents | Chunks | Chunk (ms) | Dedup (ms) | Total (ms) | Throughput |
+|-------|-----------|--------|------------|------------|------------|------------|
+| 1x | 775 | 2,919 | 9,020 | 2,932 | 22,868 | 34 docs/sec |
+| 5x | 3,875 | 6,092 | 8,633 | 2,755 | 15,275 | 254 docs/sec |
+| 10x | 7,750 | 9,962 | 8,792 | 3,210 | 16,051 | 483 docs/sec |
+| 25x | 19,375 | 21,582 | 9,464 | 4,337 | 18,823 | 1,029 docs/sec |
+| 50x | 38,750 | 40,932 | 10,522 | 6,439 | 23,626 | 1,640 docs/sec |
+
+**Key insight:** Chunking time remains near-constant (9-10.5s) as document count scales 50x. Throughput improves from 34 to 1,640 docs/sec -- a **48x improvement** -- because Spark's JVM startup overhead is amortized over more data. Dedup time scales sub-linearly due to Spark's shuffle-based `dropDuplicates`.
+
+**Note:** At 775 documents, Spark's JVM overhead makes it slower than sequential Python. The crossover point is approximately 2,000-3,000 documents. This is expected and documented honestly -- Spark is a scaling tool, not a small-data tool.
+
+---
+
+## 14. Key Learnings & Trade-offs
 
 | Decision | What We Sacrificed | What We Gained |
 |----------|-------------------|----------------|
@@ -371,6 +490,8 @@ Running with `min-instances=1` costs approximately $50-70/month for idle time. W
 | min-instances=1 over 0 | ~$50-70/month cost | Eliminates cold start for recruiter visits |
 | Patient-level data split | Fewer training images per patient | Prevents data leakage, honest evaluation metrics |
 | Doctor override over CNN-only | Added UI complexity | Clinical judgment always takes precedence |
+| pytest + GitHub Actions CI over manual testing | CI setup time | Automated quality gate, catches regressions on every push |
+| Spark pipeline over sequential-only ETL | JVM overhead at small scale | 48× throughput at 50× corpus size, production-grade pattern |
 
 ---
 
@@ -385,3 +506,5 @@ Running with `min-instances=1` costs approximately $50-70/month for idle time. W
 | 2026-04-04 | Phase 2 CNN results (AUC 0.82), per-class threshold optimization (+63% F1) | Ion Turcan |
 | 2026-04-04 | Phase 4 deployment documentation, full pipeline architecture | Ion Turcan |
 | 2026-04-04 | Restructured document: added sections 6, 10, 11 | Ion Turcan |
+| 2026-04-06 | Added pytest test suite (16 tests), GitHub Actions CI/CD pipeline | Ion Turcan |
+| 2026-04-06 | Added PySpark corpus scaling pipeline with 6-stage ETL and scale benchmarks | Ion Turcan |
