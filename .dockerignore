@@ -12,8 +12,9 @@
 # Training data (huge — not needed for API)
 data/
 
-# Model checkpoints (not needed for retrieval API)
-models/
+# Model checkpoints — exclude everything except needed files
+models/**
+!models/checkpoints/
 !models/checkpoints/efficientnet_b3_multilabel_best.pth
 !models/checkpoints/optimal_thresholds.json
 

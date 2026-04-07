@@ -1,0 +1,15 @@
+.git/
+data/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+logs/
+*.log
+*.bak
+pipelines/spark_output/
+test_samples.py
+find_best_samples.py
+copy_samples.py
