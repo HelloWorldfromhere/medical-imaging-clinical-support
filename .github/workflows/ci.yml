@@ -19,10 +19,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff pytest pytest-asyncio httpx
+          pip install ruff pytest pytest-asyncio httpx pyspark>=3.5.0
           pip install -r requirements.txt
 
       - name: Lint with ruff
@@ -30,3 +36,6 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -v
+
+      - name: Run Spark pipeline (scale test)
+        run: python -m pipelines.spark_corpus_pipeline --scale-test --partitions 2
