@@ -1,5 +1,7 @@
 # Medical Imaging Clinical Decision Support System
 
+![CI](https://github.com/HelloWorldfromhere/medical-imaging-clinical-support/actions/workflows/ci.yml/badge.svg)
+
 > **End-to-end Clinical Decision Support System** — PyTorch CNN chest X-ray classification + RAG-powered medical literature retrieval with hybrid BM25 + vector search. FastAPI backend, PostgreSQL, Docker, GCP deployment.
 
 ---
