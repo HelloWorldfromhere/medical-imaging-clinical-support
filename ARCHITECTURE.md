@@ -273,7 +273,7 @@ User uploads chest X-ray
 │  AUC: 0.82          │
 └────────┬────────────┘
          │ Per-class optimized thresholds
-         │ Confidence check (>30% required)
+         │ Confidence check (>15% required)
          ▼
 ┌─────────────────────┐     ┌──────────────────────┐
 │  Condition-Focused  │────▶│  Doctor Override      │
@@ -474,7 +474,17 @@ Benchmarked on GitHub Actions CI (Ubuntu, 2 vCPU, Python 3.11, Java 17):
 
 ---
 
-## 14. Key Learnings & Trade-offs
+## 14. Frontend UX & Sample Case System
+
+- 15 verified NIH ChestX-ray14 sample cases with synced dual-dropdown (image + clinical description)
+- Two-shine UX: green glow for results, dark gold for next action, auto-clear after 4s
+- MIN_CONFIDENCE lowered from 0.30 → 0.15 to stop blocking legitimate detections
+- needs_manual_selection flag when no condition exceeds threshold
+- Click propagation fix on classify/remove buttons
+
+---
+
+## 15. Key Learnings & Trade-offs
 
 | Decision | What We Sacrificed | What We Gained |
 |----------|-------------------|----------------|
@@ -490,7 +500,10 @@ Benchmarked on GitHub Actions CI (Ubuntu, 2 vCPU, Python 3.11, Java 17):
 | min-instances=1 over 0 | ~$50-70/month cost | Eliminates cold start for recruiter visits |
 | Patient-level data split | Fewer training images per patient | Prevents data leakage, honest evaluation metrics |
 | Doctor override over CNN-only | Added UI complexity | Clinical judgment always takes precedence |
+| MIN_CONFIDENCE 0.15 over 0.30 | Some low-confidence predictions shown | Stops blocking legitimate detections like Infiltration |
+| 15 verified samples over random | Curation effort | Recruiter demo is reliable, no broken cases |
 | pytest + GitHub Actions CI over manual testing | CI setup time | Automated quality gate, catches regressions on every push |
+| PySpark scale test in CI | Adds ~30s to pipeline | Proves Spark competency on CV 
 | Spark pipeline over sequential-only ETL | JVM overhead at small scale | 48× throughput at 50× corpus size, production-grade pattern |
 
 ---
@@ -508,3 +521,6 @@ Benchmarked on GitHub Actions CI (Ubuntu, 2 vCPU, Python 3.11, Java 17):
 | 2026-04-04 | Restructured document: added sections 6, 10, 11 | Ion Turcan |
 | 2026-04-06 | Added pytest test suite (16 tests), GitHub Actions CI/CD pipeline | Ion Turcan |
 | 2026-04-06 | Added PySpark corpus scaling pipeline with 6-stage ETL and scale benchmarks | Ion Turcan |
+| 2026-04-07 | CI/CD pipeline: 16 pytest + flake8 + PySpark scale test via GitHub Actions | Ion Turcan |
+| 2026-04-07 | Frontend UX: synced dual-dropdown, 15 NIH sample cases, two-shine system | Ion Turcan |
+| 2026-04-07 | Fixed MIN_CONFIDENCE (0.30→0.15), click propagation, PR workflow | Ion Turcan |
